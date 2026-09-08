@@ -27,6 +27,20 @@ export function useFeedback() {
     Speech.speak(texte, VOIX);
   }, [voix]);
 
+  /**
+   * Lit plusieurs morceaux à la suite, en les séparant nettement.
+   * Sert à déchiffrer un mot syllabe par syllabe : « LA… PIN… lapin ».
+   * expo-speech met les énoncés en file d'attente, il suffit donc de les
+   * empiler après un seul arrêt.
+   */
+  const direSuite = useCallback((morceaux: string[], lent = true) => {
+    if (!voix) return;
+    Speech.stop();
+    morceaux
+      .filter((m) => m.length > 0)
+      .forEach((morceau) => Speech.speak(morceau, { ...VOIX, rate: lent ? 0.6 : VOIX.rate }));
+  }, [voix]);
+
   const taire = useCallback(() => {
     Speech.stop();
   }, []);
@@ -42,5 +56,8 @@ export function useFeedback() {
     }
   }, [vibrations]);
 
-  return useMemo(() => ({ dire, taire, vibrer }), [dire, taire, vibrer]);
+  return useMemo(
+    () => ({ dire, direSuite, taire, vibrer }),
+    [dire, direSuite, taire, vibrer],
+  );
 }

@@ -2,11 +2,14 @@
  * Jeu « Je trace » : l'enfant suit du doigt le tracé d'une lettre ou d'un
  * chiffre, trait par trait, dans le bon sens.
  *
- * Principe : chaque trait est converti en une suite de points (voir
- * pathSampler). Un curseur avance le long de cette suite quand le doigt passe
- * assez près du point suivant. Il ne peut ni sauter loin devant, ni reculer,
- * ce qui garantit que le geste part du bon endroit et suit la bonne direction,
- * tout en restant très tolérant sur la précision.
+ * Les lettres sont proposées dans les trois écritures de l'école — capitales,
+ * script, cursive — que l'on change d'un geste sans quitter l'écran.
+ *
+ * Principe de validation : chaque trait est converti en une suite de points
+ * (voir pathSampler). Un curseur avance le long de cette suite quand le doigt
+ * passe assez près du point suivant. Il ne peut ni sauter loin devant, ni
+ * reculer, ce qui garantit que le geste part du bon endroit et suit la bonne
+ * direction, tout en restant très tolérant sur la précision.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -22,15 +25,15 @@ import { Confetti } from '../components/Confetti';
 import { Pilule } from '../components/Boutons';
 import { Ecran } from '../components/Ecran';
 import { DIGIT_ICONS, LETTER_WORDS, NUMBER_NAMES, PRAISES } from '../data/content';
-import { GlyphKind, glyphList, glyphStrokes } from '../data/glyphs';
+import {
+  ECRITURES_LETTRES, ETIQUETTES, Ecriture, epaisseur, glyphList, glyphStrokes,
+  reglure, versCapitale,
+} from '../data/glyphs';
 import { useFeedback } from '../lib/feedback';
 import { Point, samplePath, startDirection } from '../lib/pathSampler';
 import { pick } from '../lib/random';
 import { useProgress } from '../state/progress';
 import { colors, gradients, radius, shadow } from '../theme';
-
-/** Gris du chemin à suivre : assez visible pour guider, assez clair pour que le vert ressorte. */
-const GUIDE = '#dbe1f7';
 
 /** Distance maximale au chemin, en unités du repère 0-100. Volontairement large. */
 const TOLERANCE = 11;
@@ -38,29 +41,36 @@ const TOLERANCE = 11;
 const AVANCE_MAX = 16;
 /** Le trait est validé quand il reste moins de 3 points à parcourir. */
 const MARGE_FIN = 3;
+/** Gris du chemin à suivre : assez visible pour guider, assez clair pour que le vert ressorte. */
+const GUIDE = '#dbe1f7';
 
 type TraitEchantillonne = { d: string; points: Point[]; longueur: number };
 
 type Props = {
-  kind: GlyphKind;
+  /** 'chiffres' fige l'écriture ; 'lettres' laisse le choix entre les trois. */
+  groupe: 'lettres' | 'chiffres';
   onRetour: () => void;
 };
 
-export function EcranTrace({ kind, onRetour }: Props) {
-  const liste = useMemo(() => glyphList(kind), [kind]);
+export function EcranTrace({ groupe, onRetour }: Props) {
   const { width, height } = useWindowDimensions();
   const { dire, vibrer } = useFeedback();
-  const { progress, marquerTrace } = useProgress();
+  const { progress, marquerTrace, choisirEcriture } = useProgress();
 
+  const ecriture: Ecriture = groupe === 'chiffres'
+    ? 'chiffres'
+    : (progress.ecriturePreferee === 'chiffres' ? 'capitales' : progress.ecriturePreferee);
+
+  const liste = useMemo(() => glyphList(ecriture), [ecriture]);
   const [index, setIndex] = useState(0);
-  const signe = liste[index];
+  const signe = liste[Math.min(index, liste.length - 1)];
 
   const traits = useMemo<TraitEchantillonne[]>(
-    () => glyphStrokes(kind, signe).map((d) => {
+    () => glyphStrokes(ecriture, signe).map((d) => {
       const { points, length } = samplePath(d);
       return { d, points, longueur: length };
     }),
-    [kind, signe],
+    [ecriture, signe],
   );
 
   const [traitCourant, setTraitCourant] = useState(0);
@@ -78,7 +88,19 @@ export function EcranTrace({ kind, onRetour }: Props) {
   const tailleRef = useRef(1);
   const encreRef = useRef<Point[][]>([]);
 
-  const cote = Math.max(200, Math.min(width - 44, height * 0.5, 440));
+  // Position de la zone de dessin à l'écran. On travaille en coordonnées
+  // absolues plutôt qu'avec locationX : cette dernière est relative à
+  // l'élément touché, qui peut être un morceau du dessin plutôt que la zone
+  // elle-même, et les points seraient alors faussés en cours de geste.
+  const toileRef = useRef<View>(null);
+  const origineRef = useRef<{ x: number; y: number } | null>(null);
+  const mesurerToile = useCallback(() => {
+    toileRef.current?.measureInWindow((x, y) => {
+      if (Number.isFinite(x) && Number.isFinite(y)) origineRef.current = { x, y };
+    });
+  }, []);
+
+  const cote = Math.max(200, Math.min(width - 44, height * 0.46, 440));
   tailleRef.current = cote;
 
   const reinitialiserSigne = useCallback(() => {
@@ -98,15 +120,15 @@ export function EcranTrace({ kind, onRetour }: Props) {
     reinitialiserSigne();
   }, [traits, reinitialiserSigne]);
 
-  const nomDuSigne = useCallback(() => (
-    kind === 'digits' ? NUMBER_NAMES[Number(signe)] ?? signe : signe
-  ), [kind, signe]);
+  const capitale = versCapitale(signe);
+  const [motRepere, imageRepere] = ecriture === 'chiffres'
+    ? [NUMBER_NAMES[Number(signe)] ?? signe, DIGIT_ICONS[signe] ?? '🔢']
+    : LETTER_WORDS[capitale] ?? [capitale, ''];
 
   const phraseIndice = useCallback(() => {
-    if (kind === 'digits') return `Le chiffre ${NUMBER_NAMES[Number(signe)] ?? signe}`;
-    const mot = LETTER_WORDS[signe]?.[0];
-    return mot ? `${signe} comme ${mot}` : signe;
-  }, [kind, signe]);
+    if (ecriture === 'chiffres') return `Le chiffre ${NUMBER_NAMES[Number(signe)] ?? signe}`;
+    return `${capitale} comme ${motRepere}`;
+  }, [capitale, ecriture, motRepere, signe]);
 
   // Annonce le signe à chaque changement.
   useEffect(() => {
@@ -118,10 +140,10 @@ export function EcranTrace({ kind, onRetour }: Props) {
     setFini(true);
     setSalve((n) => n + 1);
     vibrer('succes');
-    const premiereFois = marquerTrace(kind, signe);
+    const premiereFois = marquerTrace(ecriture, signe);
     setMessage(premiereFois ? `${pick(PRAISES)} +1 ⭐` : pick(PRAISES));
     dire(`${pick(PRAISES)} ${phraseIndice()}`);
-  }, [dire, kind, marquerTrace, phraseIndice, signe, vibrer]);
+  }, [dire, ecriture, marquerTrace, phraseIndice, signe, vibrer]);
 
   /** Traite un point du doigt, exprimé dans le repère 0-100 du dessin. */
   const suivrePoint = useCallback((gx: number, gy: number) => {
@@ -171,44 +193,89 @@ export function EcranTrace({ kind, onRetour }: Props) {
     }
   }, [terminer, vibrer]);
 
+  // Le PanResponder doit être créé une seule fois pour toute la vie de
+  // l'écran : le recréer casse le geste en cours, la vue perdant la main au
+  // premier réaffichage. Les fonctions à jour sont donc atteintes par
+  // référence plutôt que capturées.
+  const suivrePointRef = useRef(suivrePoint);
+  const mesurerRef = useRef(mesurerToile);
+  useEffect(() => { suivrePointRef.current = suivrePoint; }, [suivrePoint]);
+  useEffect(() => { mesurerRef.current = mesurerToile; }, [mesurerToile]);
+
   const panResponder = useMemo(() => {
     const traiter = (e: GestureResponderEvent) => {
-      const { locationX, locationY } = e.nativeEvent;
+      const { pageX, pageY, locationX, locationY } = e.nativeEvent;
       const taille = tailleRef.current || 1;
-      suivrePoint((locationX / taille) * 100, (locationY / taille) * 100);
+      const origine = origineRef.current;
+      // Repli sur locationX tant que la zone n'a pas été mesurée : au tout
+      // premier contact, l'élément touché est bien la zone de dessin.
+      const x = origine ? pageX - origine.x : locationX;
+      const y = origine ? pageY - origine.y : locationY;
+      suivrePointRef.current((x / taille) * 100, (y / taille) * 100);
     };
     return PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: traiter,
+      onPanResponderGrant: (e) => {
+        mesurerRef.current();
+        traiter(e);
+      },
       onPanResponderMove: traiter,
     });
-  }, [suivrePoint]);
+  }, []);
 
   const changerSigne = useCallback((nouvelIndex: number) => {
-    const borne = (nouvelIndex + liste.length) % liste.length;
-    setIndex(borne);
+    setIndex((nouvelIndex + liste.length) % liste.length);
   }, [liste.length]);
 
-  const dejaFait = kind === 'digits' ? progress.chiffres : progress.lettres;
+  /** Change d'écriture en restant sur la même lettre. */
+  const changerEcriture = useCallback((cible: Ecriture) => {
+    setIndex((i) => i); // la position dans l'alphabet est la même d'une écriture à l'autre
+    choisirEcriture(cible);
+  }, [choisirEcriture]);
+
+  const dejaFait = progress.traces[ecriture] ?? [];
+  const lignes = reglure(ecriture);
+  const largeurTrait = epaisseur(ecriture);
   const trait = traits[traitCourant];
   const avancement = trait && curseur >= 0
     ? Math.min(1, (curseur + 1) / trait.points.length)
     : 0;
-  const depart = trait?.points[0];
   const direction = trait ? startDirection(trait.points) : { x: 1, y: 0 };
-  const [motRepere, imageRepere] = kind === 'digits'
-    ? [NUMBER_NAMES[Number(signe)] ?? signe, DIGIT_ICONS[signe] ?? '🔢']
-    : LETTER_WORDS[signe] ?? [signe, ''];
 
   return (
     <Ecran
-      titre={kind === 'digits' ? 'Je trace les chiffres' : 'Je trace les lettres'}
-      degrade={kind === 'digits' ? gradients.chiffres : gradients.lettres}
+      titre={groupe === 'chiffres' ? 'Je trace les chiffres' : 'Je trace les lettres'}
+      degrade={groupe === 'chiffres' ? gradients.chiffres : gradients.lettres}
       onRetour={onRetour}
     >
       <View style={styles.centre}>
+        {groupe === 'lettres' && (
+          <View style={styles.onglets}>
+            {ECRITURES_LETTRES.map((e) => (
+              <Pressable
+                key={e}
+                onPress={() => changerEcriture(e)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: e === ecriture }}
+                accessibilityLabel={`Écriture ${ETIQUETTES[e]}`}
+                style={[styles.onglet, e === ecriture && styles.ongletActif]}
+              >
+                <Text
+                  style={[
+                    styles.ongletTexte,
+                    e === 'cursive' && styles.ongletCursive,
+                    e === ecriture && styles.ongletTexteActif,
+                  ]}
+                >
+                  {ETIQUETTES[e]}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+
         <Pressable
           onPress={() => dire(phraseIndice())}
           accessibilityRole="button"
@@ -216,27 +283,33 @@ export function EcranTrace({ kind, onRetour }: Props) {
           style={styles.indice}
         >
           <Text style={styles.indiceTexte}>
-            {imageRepere} {kind === 'digits' ? `${signe} — ${motRepere}` : `${signe} comme ${motRepere}`} 🔊
+            {imageRepere}{' '}
+            {ecriture === 'chiffres'
+              ? `${signe} — ${motRepere}`
+              : `${capitale} comme ${motRepere}`} 🔊
           </Text>
         </Pressable>
 
         <View
+          ref={toileRef}
+          onLayout={mesurerToile}
           style={[styles.toile, shadow(5), { width: cote, height: cote }]}
           {...panResponder.panHandlers}
         >
-          <Svg
-            width={cote}
-            height={cote}
-            viewBox="0 0 100 100"
-            pointerEvents="none"
-          >
-            {/* Repères du cahier */}
-            <Line x1={0} y1={12} x2={100} y2={12} stroke={colors.gris} strokeWidth={0.8} />
-            <Line
-              x1={0} y1={50} x2={100} y2={50}
-              stroke={colors.gris} strokeWidth={0.8} strokeDasharray="3 3"
-            />
-            <Line x1={0} y1={88} x2={100} y2={88} stroke={colors.gris} strokeWidth={0.8} />
+          <Svg width={cote} height={cote} viewBox="0 0 100 100" pointerEvents="none">
+            {/* Réglure du cahier */}
+            <Line x1={0} y1={lignes.montante} x2={100} y2={lignes.montante}
+              stroke={colors.gris} strokeWidth={0.8} />
+            {lignes.petite !== lignes.montante && (
+              <Line x1={0} y1={lignes.petite} x2={100} y2={lignes.petite}
+                stroke={colors.gris} strokeWidth={0.8} strokeDasharray="3 3" />
+            )}
+            <Line x1={0} y1={lignes.ligne} x2={100} y2={lignes.ligne}
+              stroke={colors.grisMoyen} strokeWidth={1} />
+            {lignes.descendante !== lignes.ligne && (
+              <Line x1={0} y1={lignes.descendante} x2={100} y2={lignes.descendante}
+                stroke={colors.gris} strokeWidth={0.8} strokeDasharray="3 3" />
+            )}
 
             {/* Chemins à suivre */}
             {traits.map((t, i) => (
@@ -244,7 +317,7 @@ export function EcranTrace({ kind, onRetour }: Props) {
                 key={`guide-${i}`}
                 d={t.d}
                 stroke={i < traitCourant || fini ? colors.vert : GUIDE}
-                strokeWidth={i === traitCourant && !fini ? 12 : 10}
+                strokeWidth={i === traitCourant && !fini ? largeurTrait + 2 : largeurTrait}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
@@ -256,7 +329,7 @@ export function EcranTrace({ kind, onRetour }: Props) {
               <Path
                 d={trait.d}
                 stroke={colors.vert}
-                strokeWidth={12}
+                strokeWidth={largeurTrait + 2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
@@ -271,7 +344,7 @@ export function EcranTrace({ kind, onRetour }: Props) {
                   key={`encre-${i}`}
                   points={pts.map((p) => `${p.x},${p.y}`).join(' ')}
                   stroke={colors.bleu}
-                  strokeWidth={3}
+                  strokeWidth={2.5}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   fill="none"
@@ -283,12 +356,11 @@ export function EcranTrace({ kind, onRetour }: Props) {
             {/* Points de départ des traits à venir. Plusieurs lettres (B, D, E, P, R)
                 démarrent deux traits au même endroit : ceux-ci sont dessinés en
                 premier pour que le point vert du trait en cours reste au-dessus. */}
-            {traits.map((t, i) => {
-              if (fini || i <= traitCourant) return null;
-              return (
+            {traits.map((t, i) => (
+              fini || i <= traitCourant ? null : (
                 <PointDepart key={`depart-${i}`} p={t.points[0]} numero={i + 1} courant={false} />
-              );
-            })}
+              )
+            ))}
 
             {/* Point de départ du trait en cours, toujours visible */}
             {trait && !fini && (
@@ -296,12 +368,8 @@ export function EcranTrace({ kind, onRetour }: Props) {
             )}
 
             {/* Flèche indiquant le sens du trait en cours */}
-            {depart && !fini && curseur < 0 && (
-              <Polygon
-                points={fleche(depart, direction)}
-                fill={colors.vert}
-                opacity={0.9}
-              />
+            {trait && !fini && curseur < 0 && (
+              <Polygon points={fleche(trait.points[0], direction)} fill={colors.vert} opacity={0.9} />
             )}
           </Svg>
         </View>
@@ -341,7 +409,7 @@ export function EcranTrace({ kind, onRetour }: Props) {
               key={c}
               onPress={() => changerSigne(i)}
               accessibilityRole="button"
-              accessibilityLabel={`Aller à ${c}`}
+              accessibilityLabel={`Aller à ${versCapitale(c)}`}
               style={[styles.jeton, i === index && styles.jetonActif]}
             >
               <Text style={[styles.jetonTexte, i === index && styles.jetonTexteActif]}>{c}</Text>
@@ -396,22 +464,35 @@ function fleche(depart: Point, dir: Point): string {
 }
 
 const styles = StyleSheet.create({
-  centre: { flex: 1, alignItems: 'center', gap: 10 },
+  centre: { flex: 1, alignItems: 'center', gap: 8 },
+  onglets: { flexDirection: 'row', gap: 8 },
+  onglet: {
+    minWidth: 78,
+    height: 44,
+    paddingHorizontal: 14,
+    borderRadius: radius.rond,
+    backgroundColor: 'rgba(255,255,255,0.75)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ongletActif: { backgroundColor: colors.bleu },
+  ongletTexte: { fontSize: 17, fontWeight: '800', color: colors.encre },
+  ongletCursive: { fontStyle: 'italic', fontSize: 15 },
+  ongletTexteActif: { color: colors.papier },
   indice: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: radius.rond,
     backgroundColor: 'rgba(255,255,255,0.75)',
   },
-  indiceTexte: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.encre,
-  },
+  indiceTexte: { fontSize: 18, fontWeight: '700', color: colors.encre },
   toile: {
     backgroundColor: colors.papier,
     borderRadius: radius.l,
     overflow: 'hidden',
+    // Sans cela, le navigateur interprète le tracé comme une sélection de
+    // texte puis comme un glisser-déposer, ce qui interrompt le geste.
+    userSelect: 'none',
   },
   message: {
     fontSize: 17,
@@ -421,11 +502,7 @@ const styles = StyleSheet.create({
     minHeight: 24,
   },
   messageGagne: { color: colors.vertFonce, fontSize: 21 },
-  actions: {
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
-  },
+  actions: { flexDirection: 'row', gap: 10, alignItems: 'center' },
   boutonFleche: { paddingHorizontal: 26 },
   bande: { alignSelf: 'stretch', flexGrow: 0, marginTop: 'auto' },
   jetons: { gap: 8, paddingHorizontal: 4, paddingVertical: 6 },

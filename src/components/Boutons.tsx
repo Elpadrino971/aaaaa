@@ -5,7 +5,7 @@
 
 import React from 'react';
 import {
-  Pressable, StyleProp, StyleSheet, Text, TextStyle, View, ViewStyle,
+  Pressable, StyleProp, StyleSheet, Text, View, ViewStyle,
 } from 'react-native';
 
 import { colors, radius, shadow } from '../theme';

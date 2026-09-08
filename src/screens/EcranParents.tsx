@@ -8,9 +8,26 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Bascule, Pilule } from '../components/Boutons';
 import { Ecran } from '../components/Ecran';
-import { DIGIT_LIST, LETTER_LIST } from '../data/glyphs';
+import { Ecriture, glyphList, versCapitale } from '../data/glyphs';
 import { useProgress } from '../state/progress';
 import { colors, gradients, radius, shadow } from '../theme';
+
+/** Les quatre séries suivies, dans l'ordre d'apprentissage. */
+const SERIES: { ecriture: Ecriture; titre: string }[] = [
+  { ecriture: 'capitales', titre: "Capitales d'imprimerie" },
+  { ecriture: 'script', titre: "Minuscules d'imprimerie" },
+  { ecriture: 'cursive', titre: 'Écriture attachée' },
+  { ecriture: 'chiffres', titre: 'Chiffres' },
+];
+
+const RECORDS: { cle: string; libelle: string; unite: string }[] = [
+  { cle: 'sons', libelle: 'Les sons', unite: "bonnes réponses d'affilée" },
+  { cle: 'syllabes', libelle: 'Je lis — syllabes', unite: "bonnes réponses d'affilée" },
+  { cle: 'lecture', libelle: 'Je lis — mots', unite: "bonnes réponses d'affilée" },
+  { cle: 'compter', libelle: 'Je compte', unite: "bonnes réponses d'affilée" },
+  { cle: 'ecoute', libelle: "J'écoute", unite: "bonnes réponses d'affilée" },
+  { cle: 'mots', libelle: 'Je forme des mots', unite: 'mots dans une partie' },
+];
 
 export function EcranParents({ onRetour }: { onRetour: () => void }) {
   const { progress, basculerReglage, reinitialiser } = useProgress();
@@ -51,44 +68,44 @@ export function EcranParents({ onRetour }: { onRetour: () => void }) {
 
       <View style={[styles.panneau, shadow(4)]}>
         <Text style={styles.titre}>Progression</Text>
-        <Text style={styles.chiffreCle}>⭐ {progress.etoiles} étoiles</Text>
-
-        <Text style={styles.sousTitre}>
-          Lettres tracées : {progress.lettres.length} / {LETTER_LIST.length}
+        <Text style={styles.chiffreCle}>
+          ⭐ {progress.etoiles} étoile{progress.etoiles > 1 ? 's' : ''}
         </Text>
-        <View style={styles.pastilles}>
-          {LETTER_LIST.map((c) => (
-            <View key={c} style={[styles.pastille, progress.lettres.includes(c) && styles.pastilleFaite]}>
-              <Text style={[styles.pastilleTexte, progress.lettres.includes(c) && styles.pastilleTexteFait]}>
-                {c}
-              </Text>
-            </View>
-          ))}
-        </View>
 
-        <Text style={styles.sousTitre}>
-          Chiffres tracés : {progress.chiffres.length} / {DIGIT_LIST.length}
-        </Text>
-        <View style={styles.pastilles}>
-          {DIGIT_LIST.map((c) => (
-            <View key={c} style={[styles.pastille, progress.chiffres.includes(c) && styles.pastilleFaite]}>
-              <Text style={[styles.pastilleTexte, progress.chiffres.includes(c) && styles.pastilleTexteFait]}>
-                {c}
+        {SERIES.map(({ ecriture, titre }) => {
+          const liste = glyphList(ecriture);
+          const faits = progress.traces[ecriture] ?? [];
+          return (
+            <View key={ecriture}>
+              <Text style={styles.sousTitre}>
+                {titre} : {faits.length} / {liste.length}
               </Text>
+              <View style={styles.pastilles}>
+                {liste.map((c) => {
+                  const fait = faits.includes(c);
+                  return (
+                    <View
+                      key={c}
+                      style={[styles.pastille, fait && styles.pastilleFaite]}
+                      accessibilityLabel={`${versCapitale(c)}${fait ? ', tracé' : ''}`}
+                    >
+                      <Text style={[styles.pastilleTexte, fait && styles.pastilleTexteFait]}>
+                        {c}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
             </View>
-          ))}
-        </View>
+          );
+        })}
 
         <Text style={styles.sousTitre}>Records</Text>
-        <Text style={styles.ligne}>
-          Je compte : {progress.records.compter ?? 0} bonnes réponses d'affilée
-        </Text>
-        <Text style={styles.ligne}>
-          J'écoute : {progress.records.ecoute ?? 0} bonnes réponses d'affilée
-        </Text>
-        <Text style={styles.ligne}>
-          Je forme des mots : {progress.records.mots ?? 0} mots dans une partie
-        </Text>
+        {RECORDS.map(({ cle, libelle, unite }) => (
+          <Text key={cle} style={styles.ligne}>
+            {libelle} : {progress.records[cle] ?? 0} {unite}
+          </Text>
+        ))}
         <Text style={styles.ligne}>
           Memory : {progress.records.memory ? `${progress.records.memory} coups` : '—'}
         </Text>
@@ -105,6 +122,11 @@ export function EcranParents({ onRetour }: { onRetour: () => void }) {
           Conseil : dans « Je trace », laissez l'enfant suivre le point vert numéroté
           plutôt que de viser la perfection du geste. La tolérance est volontairement
           large pour les doigts encore malhabiles.
+        </Text>
+        <Text style={styles.paragraphe}>
+          L'ordre habituel de l'école : d'abord les capitales, puis les minuscules
+          d'imprimerie, enfin l'attaché — souvent seulement en grande section ou au
+          CP. « Les sons » prépare la lecture, « Je lis » la met en pratique.
         </Text>
         <Pilule
           titre="Tout remettre à zéro"

@@ -1,8 +1,8 @@
 # 🎓 Ludo Malin
 
 **Application mobile native de jeux d'apprentissage pour les enfants de 3 à 7 ans.**
-Tracer les lettres et les chiffres du bout du doigt, compter, reconnaître les sons,
-former des mots, jouer au memory.
+Tracer les lettres dans les trois écritures de l'école, apprendre les sons,
+déchiffrer ses premiers mots, compter, jouer au memory.
 
 Application React Native (Expo), iOS et Android, entièrement en français.
 Tout fonctionne **hors ligne** : pas de compte, pas de publicité, pas d'achat
@@ -10,12 +10,14 @@ intégré, aucune donnée ne quitte l'appareil.
 
 ---
 
-## 🎮 Les six jeux
+## 🎮 Les huit jeux
 
 | Jeu | Ce que l'enfant apprend |
 | --- | --- |
-| ✏️ **Je trace les lettres** | Le geste d'écriture des 26 majuscules, trait par trait, dans le bon ordre et le bon sens |
+| ✏️ **Je trace les lettres** | Le geste d'écriture des 26 lettres, trait par trait, dans les **trois écritures** : capitales, script, attaché |
 | 🔢 **Je trace les chiffres** | Le geste d'écriture des chiffres de 0 à 9 |
+| 🔤 **Les sons** | La conscience phonologique : le son qui commence un mot, dans les deux sens |
+| 📖 **Je lis** | Le déchiffrage : les syllabes, puis la lecture de mots entiers |
 | 🍎 **Je compte** | Le dénombrement jusqu'à 10, avec comptage guidé objet par objet |
 | 👂 **J'écoute** | Reconnaître une lettre ou un chiffre prononcé à voix haute |
 | 🧩 **Je forme des mots** | Reconstituer 30 mots courants à partir de leurs lettres mélangées |
@@ -23,6 +25,35 @@ intégré, aucune donnée ne quitte l'appareil.
 
 Chaque réussite rapporte une étoile ⭐. La progression est conservée sur
 l'appareil et consultable dans la zone parents.
+
+### Les trois écritures
+
+L'école en enseigne trois, dans cet ordre, et l'application suit le même
+chemin — un bouton suffit pour passer de l'une à l'autre sans changer de lettre :
+
+| | Exemple | Quand |
+| --- | --- | --- |
+| **Capitales d'imprimerie** | `A B C` | Petite et moyenne section |
+| **Minuscules d'imprimerie** (script) | `a b c` | Moyenne et grande section, c'est l'écriture des livres |
+| **Cursive** (attaché) | lettres liées | Grande section et CP, l'écriture du cahier |
+
+Les minuscules et la cursive partagent la même réglure à quatre lignes —
+montantes, petites lettres, ligne d'écriture, descendantes — comme un vrai
+cahier d'écolier.
+
+### Du son à la lecture
+
+Les deux jeux de lecture se complètent :
+
+- **Les sons** alterne deux questions inverses — « par quelle lettre commence
+  *poisson* ? » et « quel mot commence par la lettre D ? ». Les mots-repères
+  ont été choisis pour que la lettre initiale se prononce de sa façon la plus
+  régulière : pas de *chat* pour le C, pas de H muet.
+- **Je lis** commence par les syllabes. Les trois leurres ne sont pas tirés au
+  hasard : l'un partage la consonne, l'autre la voyelle, ce qui oblige à
+  écouter les deux sons plutôt qu'à reconnaître une silhouette. Vient ensuite
+  la lecture de mots, affichés découpés en syllabes que l'on touche pour les
+  entendre, avant de choisir la bonne image — déchiffrer, puis comprendre.
 
 ## ✨ Choix de conception
 
@@ -65,13 +96,18 @@ npm run typecheck   # TypeScript strict
 npm run doctor      # diagnostic Expo
 ```
 
+Le tracé a aussi été validé en rejouant le geste sur les 88 signes via la
+cible web (`npx expo export --platform web`) pilotée par un navigateur : les
+88 se valident et rapportent leur étoile.
+
 ## 🏗️ Comment fonctionne le tracé
 
 C'est la partie la plus délicate de l'application.
 
 1. Chaque lettre est décrite dans [`src/data/glyphs.ts`](src/data/glyphs.ts)
    comme une liste de traits — des chemins SVG dans un repère de 100 × 100 —
-   rangés dans l'ordre où on apprend à les écrire.
+   rangés dans l'ordre où on apprend à les écrire. Il y a 88 signes en tout :
+   26 capitales, 26 minuscules, 26 lettres cursives et 10 chiffres.
 2. [`src/lib/pathSampler.ts`](src/lib/pathSampler.ts) convertit ces chemins
    (commandes `M`, `L`, `H`, `V`, `C`, `A`) en une suite de points
    régulièrement espacés. Le web offrirait `getPointAtLength()`, absent en
@@ -84,6 +120,9 @@ C'est la partie la plus délicate de l'application.
 4. Le trait est validé à trois points de la fin, et la lettre lorsque tous ses
    traits le sont.
 
+Les 88 signes sont vérifiés par rejeu automatisé du geste, écriture par
+écriture (voir « Vérifications »).
+
 ## 📁 Organisation du code
 
 ```
@@ -92,8 +131,9 @@ src/
   navigation.ts            description des écrans
   theme.ts                 couleurs, arrondis, ombres
   data/
-    glyphs.ts              tracés des 26 lettres et des 10 chiffres
+    glyphs.ts              tracés des trois écritures et des chiffres
     content.ts             mots-repères, listes de mots, emoji
+    lecture.ts             mots par son initial, syllabes, mots à déchiffrer
   lib/
     pathSampler.ts         échantillonnage des chemins SVG
     feedback.ts            voix de synthèse et vibrations

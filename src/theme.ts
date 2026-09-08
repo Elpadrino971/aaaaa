@@ -13,6 +13,8 @@ export const colors = {
   vert: '#35c46b',
   vertFonce: '#23a856',
   turquoise: '#2ec5c5',
+  corail: '#ef5f5f',
+  indigo: '#5a51b5',
   rouge: '#ef4444',
 
   encre: '#2b2d5b',
@@ -31,6 +33,8 @@ export const gradients = {
   ecoute: ['#e8dcff', '#ffe0f0'],
   mots: ['#fff0cf', '#ffdcd6'],
   memory: ['#d5f0ff', '#e2e0ff'],
+  sons: ['#ffe3e8', '#ffe9cf'],
+  lecture: ['#d9f3ef', '#d6e8ff'],
 } as const;
 
 export const radius = {

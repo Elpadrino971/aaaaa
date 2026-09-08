@@ -2,7 +2,7 @@
  * Ludo Malin — jeux d'apprentissage pour les 3-7 ans.
  *
  * Composant racine : installe les fournisseurs de contexte, gère la navigation
- * (un menu et six jeux) et le bouton retour physique d'Android.
+ * (un menu et huit jeux) et le bouton retour physique d'Android.
  */
 
 import { StatusBar } from 'expo-status-bar';
@@ -15,9 +15,11 @@ import { Route } from './src/navigation';
 import { EcranAccueil } from './src/screens/EcranAccueil';
 import { EcranCompter } from './src/screens/EcranCompter';
 import { EcranEcoute } from './src/screens/EcranEcoute';
+import { EcranLecture } from './src/screens/EcranLecture';
 import { EcranMemory } from './src/screens/EcranMemory';
 import { EcranMots } from './src/screens/EcranMots';
 import { EcranParents } from './src/screens/EcranParents';
+import { EcranSons } from './src/screens/EcranSons';
 import { EcranTrace } from './src/screens/EcranTrace';
 import { ProgressProvider } from './src/state/progress';
 
@@ -62,8 +64,10 @@ function Navigation() {
     <View style={styles.racine}>
       {route.nom === 'accueil' && <EcranAccueil onNaviguer={naviguer} />}
       {route.nom === 'trace' && (
-        <EcranTrace key={route.kind} kind={route.kind} onRetour={retour} />
+        <EcranTrace key={route.groupe} groupe={route.groupe} onRetour={retour} />
       )}
+      {route.nom === 'sons' && <EcranSons onRetour={retour} />}
+      {route.nom === 'lecture' && <EcranLecture onRetour={retour} />}
       {route.nom === 'compter' && <EcranCompter onRetour={retour} />}
       {route.nom === 'ecoute' && <EcranEcoute onRetour={retour} />}
       {route.nom === 'mots' && <EcranMots onRetour={retour} />}

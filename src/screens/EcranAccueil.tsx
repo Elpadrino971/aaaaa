@@ -16,12 +16,14 @@ import { colors, gradients } from '../theme';
 type Props = { onNaviguer: (route: Route) => void };
 
 const JEUX: { route: Route; titre: string; sousTitre: string; emoji: string; couleur: string }[] = [
-  { route: { nom: 'trace', kind: 'letters' }, titre: 'Je trace les lettres', sousTitre: 'A B C … avec le doigt', emoji: '✏️', couleur: colors.bleu },
-  { route: { nom: 'trace', kind: 'digits' }, titre: 'Je trace les chiffres', sousTitre: '0 1 2 … avec le doigt', emoji: '🔢', couleur: colors.violet },
+  { route: { nom: 'trace', groupe: 'lettres' }, titre: 'Je trace les lettres', sousTitre: "A B C, a b c et l'attaché", emoji: '✏️', couleur: colors.bleu },
+  { route: { nom: 'trace', groupe: 'chiffres' }, titre: 'Je trace les chiffres', sousTitre: '0 1 2 … avec le doigt', emoji: '🔢', couleur: colors.violet },
+  { route: { nom: 'sons' }, titre: 'Les sons', sousTitre: 'Le son qui commence le mot', emoji: '🔤', couleur: colors.rose },
+  { route: { nom: 'lecture' }, titre: 'Je lis', sousTitre: 'Syllabes et premiers mots', emoji: '📖', couleur: colors.turquoise },
   { route: { nom: 'compter' }, titre: 'Je compte', sousTitre: 'Combien y en a-t-il ?', emoji: '🍎', couleur: colors.vert },
-  { route: { nom: 'ecoute' }, titre: "J'écoute", sousTitre: 'Trouve ce que tu entends', emoji: '👂', couleur: colors.rose },
-  { route: { nom: 'mots' }, titre: 'Je forme des mots', sousTitre: 'Remets les lettres en ordre', emoji: '🧩', couleur: colors.orange },
-  { route: { nom: 'memory' }, titre: 'Le memory', sousTitre: 'Retrouve les paires', emoji: '🐼', couleur: colors.turquoise },
+  { route: { nom: 'ecoute' }, titre: "J'écoute", sousTitre: 'Trouve ce que tu entends', emoji: '👂', couleur: colors.orange },
+  { route: { nom: 'mots' }, titre: 'Je forme des mots', sousTitre: 'Remets les lettres en ordre', emoji: '🧩', couleur: colors.corail },
+  { route: { nom: 'memory' }, titre: 'Le memory', sousTitre: 'Retrouve les paires', emoji: '🐼', couleur: colors.indigo },
 ];
 
 export function EcranAccueil({ onNaviguer }: Props) {

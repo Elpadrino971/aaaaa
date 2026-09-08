@@ -10,6 +10,8 @@ import React, {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 
+import { Ecriture } from '../data/glyphs';
+
 const STORAGE_KEY = 'ludo-malin/v1';
 
 export type Settings = {
@@ -21,20 +23,27 @@ export type Settings = {
 
 export type Progress = {
   etoiles: number;
-  /** Lettres déjà tracées jusqu'au bout. */
-  lettres: string[];
-  /** Chiffres déjà tracés jusqu'au bout. */
-  chiffres: string[];
+  /** Signes déjà tracés jusqu'au bout, rangés par écriture. */
+  traces: Record<Ecriture, string[]>;
   /** Meilleure série de bonnes réponses, par jeu. */
   records: Record<string, number>;
+  /** Dernière écriture choisie dans le jeu de tracé. */
+  ecriturePreferee: Ecriture;
   reglages: Settings;
+};
+
+const TRACES_VIDES: Record<Ecriture, string[]> = {
+  capitales: [],
+  script: [],
+  cursive: [],
+  chiffres: [],
 };
 
 const VIDE: Progress = {
   etoiles: 0,
-  lettres: [],
-  chiffres: [],
+  traces: TRACES_VIDES,
   records: {},
+  ecriturePreferee: 'capitales',
   reglages: { voix: true, vibrations: true },
 };
 
@@ -43,22 +52,38 @@ type Ctx = {
   /** true tant que la sauvegarde n'a pas été relue au démarrage. */
   chargement: boolean;
   ajouterEtoiles: (n: number) => void;
-  marquerTrace: (kind: 'letters' | 'digits', ch: string) => boolean;
+  marquerTrace: (ecriture: Ecriture, ch: string) => boolean;
   enregistrerRecord: (jeu: string, valeur: number) => void;
+  choisirEcriture: (ecriture: Ecriture) => void;
   basculerReglage: (cle: keyof Settings) => void;
   reinitialiser: () => void;
 };
 
 const ProgressContext = createContext<Ctx | null>(null);
 
+const ECRITURES: Ecriture[] = ['capitales', 'script', 'cursive', 'chiffres'];
+
 function fusionner(brut: unknown): Progress {
   if (!brut || typeof brut !== 'object') return VIDE;
-  const p = brut as Partial<Progress>;
+  const p = brut as Partial<Progress> & { lettres?: string[]; chiffres?: string[] };
+
+  // Reprend la sauvegarde d'une version antérieure, qui ne connaissait que les
+  // capitales et les chiffres.
+  const traces = { ...TRACES_VIDES };
+  for (const e of ECRITURES) {
+    const stocke = p.traces?.[e];
+    if (Array.isArray(stocke)) traces[e] = stocke;
+  }
+  if (Array.isArray(p.lettres)) traces.capitales = p.lettres;
+  if (Array.isArray(p.chiffres)) traces.chiffres = p.chiffres;
+
   return {
     etoiles: typeof p.etoiles === 'number' ? p.etoiles : 0,
-    lettres: Array.isArray(p.lettres) ? p.lettres : [],
-    chiffres: Array.isArray(p.chiffres) ? p.chiffres : [],
+    traces,
     records: p.records && typeof p.records === 'object' ? p.records : {},
+    ecriturePreferee: ECRITURES.includes(p.ecriturePreferee as Ecriture)
+      ? (p.ecriturePreferee as Ecriture)
+      : 'capitales',
     reglages: { ...VIDE.reglages, ...(p.reglages ?? {}) },
   };
 }
@@ -106,16 +131,20 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Note un signe comme tracé. Renvoie true s'il s'agit d'une première fois
-   * (l'appelant offre alors une étoile).
+   * (l'appelant offre alors une étoile). Chaque écriture compte séparément :
+   * tracer « a » en cursive reste à gagner même si « A » est acquis.
    */
-  const marquerTrace = useCallback((kind: 'letters' | 'digits', ch: string) => {
+  const marquerTrace = useCallback((ecriture: Ecriture, ch: string) => {
     let nouveau = false;
     setProgress((p) => {
-      const cle = kind === 'digits' ? 'chiffres' : 'lettres';
-      const deja = p[cle];
+      const deja = p.traces[ecriture];
       if (deja.includes(ch)) return p;
       nouveau = true;
-      return { ...p, [cle]: [...deja, ch], etoiles: p.etoiles + 1 };
+      return {
+        ...p,
+        traces: { ...p.traces, [ecriture]: [...deja, ch] },
+        etoiles: p.etoiles + 1,
+      };
     });
     return nouveau;
   }, []);
@@ -124,6 +153,10 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     setProgress((p) => (
       (p.records[jeu] ?? 0) >= valeur ? p : { ...p, records: { ...p.records, [jeu]: valeur } }
     ));
+  }, []);
+
+  const choisirEcriture = useCallback((ecriture: Ecriture) => {
+    setProgress((p) => (p.ecriturePreferee === ecriture ? p : { ...p, ecriturePreferee: ecriture }));
   }, []);
 
   const basculerReglage = useCallback((cle: keyof Settings) => {
@@ -135,10 +168,10 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const valeur = useMemo<Ctx>(() => ({
-    progress, chargement, ajouterEtoiles, marquerTrace,
-    enregistrerRecord, basculerReglage, reinitialiser,
-  }), [progress, chargement, ajouterEtoiles, marquerTrace,
-    enregistrerRecord, basculerReglage, reinitialiser]);
+    progress, chargement, ajouterEtoiles, marquerTrace, enregistrerRecord,
+    choisirEcriture, basculerReglage, reinitialiser,
+  }), [progress, chargement, ajouterEtoiles, marquerTrace, enregistrerRecord,
+    choisirEcriture, basculerReglage, reinitialiser]);
 
   return <ProgressContext.Provider value={valeur}>{children}</ProgressContext.Provider>;
 }

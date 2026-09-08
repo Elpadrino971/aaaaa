@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Confetti } from '../components/Confetti';
+import { BulleMascotte } from '../components/BulleMascotte';
 import { Ecran } from '../components/Ecran';
 import { ENCOURAGEMENTS, PRAISES } from '../data/content';
 import { LETTRES_SONS, MOTS_PAR_SON, MotSon } from '../data/lecture';
@@ -48,7 +49,7 @@ function tirerManche(numero: number): Manche {
 }
 
 export function EcranSons({ onRetour }: { onRetour: () => void }) {
-  const { dire, vibrer } = useFeedback();
+  const { dire, reagir } = useFeedback();
   const { progress, ajouterEtoiles, enregistrerRecord } = useProgress();
 
   const [numero, setNumero] = useState(0);
@@ -87,7 +88,7 @@ export function EcranSons({ onRetour }: { onRetour: () => void }) {
     if (juste) {
       const nouvelleSerie = serie + 1;
       setSerie(nouvelleSerie);
-      vibrer('succes');
+      reagir('succes');
       setSalve((n) => n + 1);
       ajouterEtoiles(1);
       enregistrerRecord('sons', nouvelleSerie);
@@ -96,14 +97,14 @@ export function EcranSons({ onRetour }: { onRetour: () => void }) {
       dire(`${bravo} ${manche.cible.mot} commence par la lettre ${manche.cible.lettre}`);
       setTimeout(manchesuivante, 2200);
     } else {
-      vibrer('erreur');
+      reagir('erreur');
       setSerie(0);
       setMessage(pick(ENCOURAGEMENTS));
       dire(`Non. Écoute bien : ${manche.cible.mot}`);
       setTimeout(() => setChoisi(null), 1200);
     }
   }, [ajouterEtoiles, choisi, dire, enregistrerRecord, manche.cible,
-    manchesuivante, serie, vibrer]);
+    manchesuivante, serie, reagir]);
 
   const gagne = choisi !== null && message !== '' && !ENCOURAGEMENTS.includes(message);
 
@@ -196,9 +197,11 @@ export function EcranSons({ onRetour }: { onRetour: () => void }) {
           </>
         )}
 
-        <Text style={[styles.message, gagne && styles.messageGagne]}>
-          {message || 'Écoute bien le début du mot 👂'}
-        </Text>
+        <BulleMascotte
+          taille={48}
+          humeur={gagne ? 'content' : choisi !== null ? 'oups' : 'normal'}
+          message={message || 'Écoute bien le début du mot 👂'}
+        />
 
         <Text style={styles.score}>
           Série : {serie}   •   Record : {progress.records.sons ?? 0}
@@ -264,13 +267,5 @@ const styles = StyleSheet.create({
   faux: { backgroundColor: colors.rouge },
   texteFort: { color: colors.papier },
   enfonce: { transform: [{ translateY: 2 }] },
-  message: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.grisTexte,
-    textAlign: 'center',
-    minHeight: 24,
-  },
-  messageGagne: { color: colors.vertFonce, fontSize: 20 },
   score: { fontSize: 14, fontWeight: '700', color: colors.grisTexte, marginTop: 'auto' },
 });

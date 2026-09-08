@@ -9,6 +9,7 @@ import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-na
 
 import { Confetti } from '../components/Confetti';
 import { Pilule } from '../components/Boutons';
+import { BulleMascotte } from '../components/BulleMascotte';
 import { Ecran } from '../components/Ecran';
 import { ENCOURAGEMENTS, NUMBER_NAMES, PRAISES } from '../data/content';
 import { DIGIT_LIST, LETTER_LIST } from '../data/glyphs';
@@ -25,8 +26,14 @@ function tirer(mode: Mode) {
   return { cible, propositions: makeChoices(cible, source, 4) };
 }
 
+/** L’humeur de Malin face à une réponse : rien, réussie, ou ratée. */
+function humeurReponse(choisi: unknown, juste: boolean) {
+  if (choisi === null || choisi === undefined) return 'normal' as const;
+  return juste ? ('content' as const) : ('oups' as const);
+}
+
 export function EcranEcoute({ onRetour }: { onRetour: () => void }) {
-  const { dire, vibrer } = useFeedback();
+  const { dire, reagir } = useFeedback();
   const { progress, ajouterEtoiles, enregistrerRecord } = useProgress();
   const { width } = useWindowDimensions();
 
@@ -65,7 +72,7 @@ export function EcranEcoute({ onRetour }: { onRetour: () => void }) {
     if (symbole === manche.cible) {
       const nouvelleSerie = serie + 1;
       setSerie(nouvelleSerie);
-      vibrer('succes');
+      reagir('succes');
       setSalve((n) => n + 1);
       ajouterEtoiles(1);
       enregistrerRecord('ecoute', nouvelleSerie);
@@ -78,14 +85,14 @@ export function EcranEcoute({ onRetour }: { onRetour: () => void }) {
         setMessage('');
       }, 1300);
     } else {
-      vibrer('erreur');
+      reagir('erreur');
       setSerie(0);
       setMessage(pick(ENCOURAGEMENTS));
       dire(`Non, écoute encore : ${prononcer(manche.cible)}`);
       setTimeout(() => setChoisi(null), 1000);
     }
   }, [ajouterEtoiles, choisi, dire, enregistrerRecord, manche.cible, mode,
-    prononcer, serie, vibrer]);
+    prononcer, serie, reagir]);
 
   return (
     <Ecran titre="J’écoute" degrade={gradients.ecoute} onRetour={onRetour}>
@@ -115,9 +122,11 @@ export function EcranEcoute({ onRetour }: { onRetour: () => void }) {
           <Text style={styles.hautParleurTexte}>Réécouter</Text>
         </Pressable>
 
-        <Text style={[styles.message, choisi === manche.cible && styles.messageGagne]}>
-          {message || 'Touche ce que tu entends 👂'}
-        </Text>
+        <BulleMascotte
+          taille={48}
+          humeur={humeurReponse(choisi, choisi === manche.cible)}
+          message={message || 'Touche ce que tu entends 👂'}
+        />
 
         <View style={[styles.grille, { maxWidth: cote * 2 + 12 }]}>
           {manche.propositions.map((symbole) => {
@@ -169,14 +178,6 @@ const styles = StyleSheet.create({
   },
   hautParleurEmoji: { fontSize: 54, lineHeight: 62 },
   hautParleurTexte: { fontSize: 15, fontWeight: '700', color: colors.grisTexte },
-  message: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.grisTexte,
-    textAlign: 'center',
-    minHeight: 24,
-  },
-  messageGagne: { color: colors.vertFonce, fontSize: 20 },
   grille: {
     flexDirection: 'row',
     flexWrap: 'wrap',

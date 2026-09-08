@@ -9,6 +9,7 @@ import { Animated, Pressable, StyleSheet, Text, useWindowDimensions, View } from
 
 import { Confetti } from '../components/Confetti';
 import { Pilule } from '../components/Boutons';
+import { BulleMascotte } from '../components/BulleMascotte';
 import { Ecran } from '../components/Ecran';
 import { ANIMALS, PRAISES } from '../data/content';
 import { useFeedback } from '../lib/feedback';
@@ -27,7 +28,7 @@ function nouvellePartie(): Carte[] {
 }
 
 export function EcranMemory({ onRetour }: { onRetour: () => void }) {
-  const { dire, vibrer } = useFeedback();
+  const { dire, reagir } = useFeedback();
   const { progress, ajouterEtoiles, enregistrerRecord } = useProgress();
   const { width } = useWindowDimensions();
 
@@ -45,7 +46,7 @@ export function EcranMemory({ onRetour }: { onRetour: () => void }) {
 
   useEffect(() => {
     if (!gagne) return;
-    vibrer('succes');
+    reagir('succes');
     setSalve((n) => n + 1);
     ajouterEtoiles(2);
     // Moins il y a de coups, meilleur c’est : on garde le record à l’envers.
@@ -70,7 +71,7 @@ export function EcranMemory({ onRetour }: { onRetour: () => void }) {
     const ouvertes = cartes.filter((c) => c.retournee && !c.trouvee);
     const suivantes = cartes.map((c) => (c.id === carte.id ? { ...c, retournee: true } : c));
     setCartes(suivantes);
-    vibrer('tap');
+    reagir('tap');
 
     if (ouvertes.length === 0) return;
 
@@ -81,7 +82,7 @@ export function EcranMemory({ onRetour }: { onRetour: () => void }) {
       setCartes(suivantes.map((c) => (
         c.emoji === carte.emoji ? { ...c, trouvee: true, retournee: true } : c
       )));
-      vibrer('succes');
+      reagir('etape');
       setMessage('Une paire ! 🎉');
     } else {
       verrou.current = true;
@@ -91,14 +92,16 @@ export function EcranMemory({ onRetour }: { onRetour: () => void }) {
         verrou.current = false;
       }, 850);
     }
-  }, [cartes, vibrer]);
+  }, [cartes, reagir]);
 
   return (
     <Ecran titre="Le memory" degrade={gradients.memory} onRetour={onRetour}>
       <View style={styles.centre}>
-        <Text style={[styles.message, gagne && styles.messageGagne]}>
-          {message || 'Retrouve les deux mêmes animaux 🐾'}
-        </Text>
+        <BulleMascotte
+          taille={48}
+          humeur={gagne ? 'content' : 'normal'}
+          message={message || 'Retrouve les deux mêmes animaux 🐾'}
+        />
 
         <View style={styles.grille}>
           {cartes.map((carte) => (
@@ -182,14 +185,6 @@ function CarteMemory(
 
 const styles = StyleSheet.create({
   centre: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14 },
-  message: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.grisTexte,
-    textAlign: 'center',
-    minHeight: 24,
-  },
-  messageGagne: { color: colors.vertFonce, fontSize: 20 },
   grille: {
     flexDirection: 'row',
     flexWrap: 'wrap',

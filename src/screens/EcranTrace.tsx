@@ -23,6 +23,7 @@ import Svg, {
 
 import { Confetti } from '../components/Confetti';
 import { Pilule } from '../components/Boutons';
+import { BulleMascotte } from '../components/BulleMascotte';
 import { Ecran } from '../components/Ecran';
 import { DIGIT_ICONS, LETTER_WORDS, NUMBER_NAMES, PRAISES } from '../data/content';
 import {
@@ -54,7 +55,7 @@ type Props = {
 
 export function EcranTrace({ groupe, onRetour }: Props) {
   const { width, height } = useWindowDimensions();
-  const { dire, vibrer } = useFeedback();
+  const { dire, reagir } = useFeedback();
   const { progress, marquerTrace, choisirEcriture } = useProgress();
 
   const ecriture: Ecriture = groupe === 'chiffres'
@@ -139,11 +140,11 @@ export function EcranTrace({ groupe, onRetour }: Props) {
     finiRef.current = true;
     setFini(true);
     setSalve((n) => n + 1);
-    vibrer('succes');
+    reagir('succes');
     const premiereFois = marquerTrace(ecriture, signe);
     setMessage(premiereFois ? `${pick(PRAISES)} +1 ⭐` : pick(PRAISES));
     dire(`${pick(PRAISES)} ${phraseIndice()}`);
-  }, [dire, ecriture, marquerTrace, phraseIndice, signe, vibrer]);
+  }, [dire, ecriture, marquerTrace, phraseIndice, signe, reagir]);
 
   /** Traite un point du doigt, exprimé dans le repère 0-100 du dessin. */
   const suivrePoint = useCallback((gx: number, gy: number) => {
@@ -188,10 +189,10 @@ export function EcranTrace({ groupe, onRetour }: Props) {
         curseurRef.current = -1;
         setTraitCourant(suivant);
         setCurseur(-1);
-        vibrer('tap');
+        reagir('etape');
       }
     }
-  }, [terminer, vibrer]);
+  }, [terminer, reagir]);
 
   // Le PanResponder doit être créé une seule fois pour toute la vie de
   // l’écran : le recréer casse le geste en cours, la vue perdant la main au
@@ -374,11 +375,13 @@ export function EcranTrace({ groupe, onRetour }: Props) {
           </Svg>
         </View>
 
-        <Text style={[styles.message, fini && styles.messageGagne]}>
-          {message || (curseur < 0
+        <BulleMascotte
+          taille={48}
+          humeur={fini ? 'content' : 'normal'}
+          message={message || (curseur < 0
             ? `Pose ton doigt sur le point ${traitCourant + 1} 🟢`
             : 'Continue…')}
-        </Text>
+        />
 
         <View style={styles.actions}>
           <Pilule
@@ -494,14 +497,6 @@ const styles = StyleSheet.create({
     // texte puis comme un glisser-déposer, ce qui interrompt le geste.
     userSelect: 'none',
   },
-  message: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.grisTexte,
-    textAlign: 'center',
-    minHeight: 24,
-  },
-  messageGagne: { color: colors.vertFonce, fontSize: 21 },
   actions: { flexDirection: 'row', gap: 10, alignItems: 'center' },
   boutonFleche: { paddingHorizontal: 26 },
   bande: { alignSelf: 'stretch', flexGrow: 0, marginTop: 'auto' },

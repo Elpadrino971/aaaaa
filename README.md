@@ -78,6 +78,36 @@ Les deux jeux de lecture se complètent :
   la lecture de mots, affichés découpés en syllabes que l’on touche pour les
   entendre, avant de choisir la bonne image — déchiffrer, puis comprendre.
 
+## 🦊 Malin, la mascotte
+
+Un petit renard — d’où le nom de l’application — accueille l’enfant sur le
+menu et porte les consignes et les réactions dans les jeux : content quand
+c’est réussi, désolé quand ça rate, jamais fâché. Un message a besoin d’un
+visage pour être compris par un enfant qui ne lit pas encore : l’expression
+dit déjà « c’est gagné » avant même que le texte soit déchiffré.
+
+Il est dessiné en SVG ([`src/components/Mascotte.tsx`](src/components/Mascotte.tsx))
+et sert aussi de source unique aux icônes de l’application, régénérables :
+
+```bash
+node tools/generer-icones.js    # nécessite Playwright comme moteur de rendu
+```
+
+## 🔊 Les bruitages
+
+Six sons courts — clic, étape franchie, réussite, erreur, étoile, page qui
+tourne — **synthétisés** par [`tools/generer-sons.py`](tools/generer-sons.py),
+sans aucune dépendance :
+
+```bash
+python3 tools/generer-sons.py
+```
+
+Ils sont donc libres de droits, minuscules (92 Ko au total) et reproductibles :
+pour changer le caractère sonore de l’application, on modifie le script et on
+le relance. Le parti pris est doux et mat — la réussite est un arpège majeur
+do-mi-sol-do, l’erreur deux notes qui descendent, jamais un buzzer.
+
 ## ✨ Choix de conception
 
 - **Pensé pour de petits doigts** : toutes les zones tactiles font au moins
@@ -89,6 +119,8 @@ Les deux jeux de lecture se complètent :
   pénalité ni un compte à rebours.
 - **Aucune donnée sensible** : pas de photo, pas de caméra, pas de compte. Le
   prénom et le héros restent sur l’appareil.
+- **Tout est coupable** : voix, bruitages et vibrations se désactivent
+  séparément dans la zone parents.
 - **Zone parents** : réglages voix et vibrations, tableau de progression,
   remise à zéro.
 
@@ -128,7 +160,10 @@ Deux vérifications plus poussées ont été menées via la cible web
   tous se valident et rapportent leur étoile ;
 - **6 000 histoires** générées et relues automatiquement, à la recherche de
   marques non remplacées, de contractions fautives, de majuscules manquantes
-  ou de mots répétés.
+  ou de mots répétés ;
+- les **bruitages** contrôlés à la synthèse (hauteur des notes, absence de
+  saturation et de clic aux bords) puis à l’usage : le bon son part au bon
+  moment, et l’interrupteur de la zone parents les coupe réellement.
 
 ## 🏗️ Comment fonctionne le tracé
 
@@ -169,14 +204,20 @@ src/
   lib/
     pathSampler.ts         échantillonnage des chemins SVG
     conteur.ts             assemblage des histoires
-    feedback.ts            voix de synthèse et vibrations
+    feedback.ts            voix, bruitages et vibrations
+    sons.ts                lecture des bruitages embarqués
     random.ts              tirages aléatoires
+tools/
+  generer-sons.py          synthèse des six bruitages
+  generer-icones.js        icônes dérivées de la mascotte
   state/
     progress.tsx           étoiles, réglages et records (AsyncStorage)
   components/
     Ecran.tsx              coquille commune : fond, titre, compteur d’étoiles
     Boutons.tsx            boutons, cartes du menu, interrupteurs
     Heros.tsx              le personnage de l’enfant, dessiné en SVG
+    Mascotte.tsx           Malin le renard et ses quatre humeurs
+    BulleMascotte.tsx      Malin et sa bulle, qui portent les messages
     Confetti.tsx           animation de réussite
   screens/                 un fichier par jeu
 ```
@@ -184,9 +225,10 @@ src/
 ## 🧰 Dépendances
 
 Expo SDK 57 · React Native 0.86 · TypeScript strict ·
-`react-native-svg` (tracés) · `expo-speech` (voix française) ·
-`expo-haptics` (vibrations) · `@react-native-async-storage/async-storage`
-(progression) · `expo-linear-gradient` · `react-native-safe-area-context`.
+`react-native-svg` (tracés, héros, mascotte) · `expo-speech` (voix française) ·
+`expo-audio` (bruitages) · `expo-haptics` (vibrations) ·
+`@react-native-async-storage/async-storage` (progression) ·
+`expo-linear-gradient` · `expo-splash-screen` · `react-native-safe-area-context`.
 
 ## 📄 Licence
 

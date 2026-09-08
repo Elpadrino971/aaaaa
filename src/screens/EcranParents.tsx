@@ -61,6 +61,12 @@ export function EcranParents({ onRetour }: { onRetour: () => void }) {
         />
         <View style={styles.separateur} />
         <Bascule
+          titre="Bruitages"
+          actif={progress.reglages.sons}
+          onPress={() => basculerReglage('sons')}
+        />
+        <View style={styles.separateur} />
+        <Bascule
           titre="Vibrations"
           actif={progress.reglages.vibrations}
           onPress={() => basculerReglage('vibrations')}

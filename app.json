@@ -2,7 +2,7 @@
   "expo": {
     "name": "Ludo Malin",
     "slug": "ludo-malin",
-    "description": "Jeux d'apprentissage pour les 3-7 ans : tracer les lettres et les chiffres, compter, écouter, former des mots.",
+    "description": "Jeux d’apprentissage pour les 3-7 ans : tracer les lettres dans les trois écritures, apprendre les sons, lire ses premiers mots, compter, et vivre des histoires dont on est le héros.",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -30,6 +30,19 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
-    }
+    },
+    "plugins": [
+      "expo-audio",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#5b6ef5"
+        }
+      ],
+      "expo-asset"
+    ]
   }
 }

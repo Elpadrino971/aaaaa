@@ -18,6 +18,8 @@ const STORAGE_KEY = 'ludo-malin/v1';
 export type Settings = {
   /** Lecture à voix haute des consignes et des félicitations. */
   voix: boolean;
+  /** Bruitages : clics, réussites, erreurs. */
+  sons: boolean;
   /** Retour vibrant lors des réussites et des erreurs. */
   vibrations: boolean;
 };
@@ -48,7 +50,7 @@ const VIDE: Progress = {
   records: {},
   ecriturePreferee: 'capitales',
   heros: null,
-  reglages: { voix: true, vibrations: true },
+  reglages: { voix: true, sons: true, vibrations: true },
 };
 
 type Ctx = {

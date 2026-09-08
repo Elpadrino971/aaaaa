@@ -9,6 +9,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CarteJeu, Pilule } from '../components/Boutons';
 import { Ecran } from '../components/Ecran';
+import { BulleMascotte } from '../components/BulleMascotte';
 import { Heros } from '../components/Heros';
 import { nomHeros } from '../data/avatar';
 import { useProgress } from '../state/progress';
@@ -29,6 +30,14 @@ const JEUX: { route: Route; titre: string; sousTitre: string; emoji: string; cou
 ];
 
 
+
+/** Ce que Malin dit en haut du menu, selon l'avancée de l'enfant. */
+function accueil(etoiles: number): string {
+  if (etoiles === 0) return 'Bonjour ! Moi c’est Malin. On joue ?';
+  if (etoiles < 10) return `Déjà ${etoiles} étoile${etoiles > 1 ? 's' : ''} ! Continue !`;
+  if (etoiles < 40) return `${etoiles} étoiles ⭐ Tu deviens très fort !`;
+  return `${etoiles} étoiles ! Tu es un vrai champion 🏆`;
+}
 
 export function EcranAccueil({ onNaviguer }: Props) {
   const { progress } = useProgress();
@@ -80,11 +89,7 @@ export function EcranAccueil({ onNaviguer }: Props) {
           ))}
         </View>
 
-        <Text style={styles.bilan}>
-          {progress.etoiles === 0
-            ? 'Choisis un jeu pour gagner tes premières étoiles ⭐'
-            : `Tu as gagné ${progress.etoiles} étoile${progress.etoiles > 1 ? 's' : ''} ⭐`}
-        </Text>
+        <BulleMascotte message={accueil(progress.etoiles)} taille={58} />
 
         <View style={styles.bas}>
           <Pilule titre="👨‍👩‍👧 Zone parents" onPress={() => onNaviguer({ nom: 'parents' })} />
@@ -124,12 +129,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
-  },
-  bilan: {
-    textAlign: 'center',
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.grisTexte,
   },
   bas: { alignItems: 'center' },
 });

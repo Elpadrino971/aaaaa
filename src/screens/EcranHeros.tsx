@@ -24,21 +24,21 @@ import { colors, gradients, radius, shadow } from '../theme';
 
 export function EcranHeros({ onRetour, onFini }: { onRetour: () => void; onFini?: () => void }) {
   const { progress, definirHeros } = useProgress();
-  const { dire, vibrer } = useFeedback();
+  const { dire, reagir } = useFeedback();
   const [avatar, setAvatar] = useState<Avatar>(progress.heros ?? AVATAR_PAR_DEFAUT);
 
   const modifier = useCallback(<K extends keyof Avatar>(cle: K, valeur: Avatar[K]) => {
-    vibrer('tap');
+    reagir('tap');
     setAvatar((a) => ({ ...a, [cle]: valeur }));
-  }, [vibrer]);
+  }, [reagir]);
 
   const valider = useCallback(() => {
     definirHeros(avatar);
-    vibrer('succes');
+    reagir('succes');
     const prenom = avatar.prenom.trim();
     dire(prenom ? `Super ! Voici ${prenom} !` : 'Super ! Ton héros est prêt !');
     (onFini ?? onRetour)();
-  }, [avatar, definirHeros, dire, onFini, onRetour, vibrer]);
+  }, [avatar, definirHeros, dire, onFini, onRetour, reagir]);
 
   return (
     <Ecran titre="Mon héros" degrade={gradients.heros} onRetour={onRetour}>

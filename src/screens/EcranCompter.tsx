@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Confetti } from '../components/Confetti';
+import { BulleMascotte } from '../components/BulleMascotte';
 import { Ecran } from '../components/Ecran';
 import { COUNTABLES, ENCOURAGEMENTS, NUMBER_NAMES, PRAISES } from '../data/content';
 import { useFeedback } from '../lib/feedback';
@@ -39,8 +40,14 @@ function nouvelleManche(serie: number): Manche {
   };
 }
 
+/** L’humeur de Malin face à une réponse : rien, réussie, ou ratée. */
+function humeurReponse(choisi: unknown, juste: boolean) {
+  if (choisi === null || choisi === undefined) return 'normal' as const;
+  return juste ? ('content' as const) : ('oups' as const);
+}
+
 export function EcranCompter({ onRetour }: { onRetour: () => void }) {
-  const { dire, vibrer } = useFeedback();
+  const { dire, reagir } = useFeedback();
   const { progress, ajouterEtoiles, enregistrerRecord } = useProgress();
 
   const [serie, setSerie] = useState(0);
@@ -73,31 +80,31 @@ export function EcranCompter({ onRetour }: { onRetour: () => void }) {
 
     if (valeur === manche.quantite) {
       const nouvelleSerie = serie + 1;
-      vibrer('succes');
+      reagir('succes');
       setSalve((n) => n + 1);
       ajouterEtoiles(1);
       enregistrerRecord('compter', nouvelleSerie);
       const bravo = pick(PRAISES);
-      setMessage(`${bravo} ${NUMBER_NAMES[manche.quantite]} ! +1 ⭐`);
+      setMessage(`${bravo} Il y en a ${NUMBER_NAMES[manche.quantite]} ! +1 ⭐`);
       dire(`${bravo} ${NUMBER_NAMES[manche.quantite]}`);
       setTimeout(() => manchesuivante(nouvelleSerie), 1600);
     } else {
-      vibrer('erreur');
+      reagir('erreur');
       setMessage(pick(ENCOURAGEMENTS));
       dire('Essaie encore');
       setTimeout(() => setChoisi(null), 900);
     }
   }, [ajouterEtoiles, choisi, dire, enregistrerRecord, manche.quantite,
-    manchesuivante, serie, vibrer]);
+    manchesuivante, serie, reagir]);
 
   /** Toucher un objet le compte à voix haute. */
   const toucherObjet = useCallback((i: number) => {
     if (comptes.includes(i)) return;
     const suivants = [...comptes, i];
     setComptes(suivants);
-    vibrer('tap');
+    reagir('tap');
     dire(NUMBER_NAMES[suivants.length] ?? String(suivants.length));
-  }, [comptes, dire, vibrer]);
+  }, [comptes, dire, reagir]);
 
   return (
     <Ecran titre="Je compte" degrade={gradients.compter} onRetour={onRetour}>
@@ -125,9 +132,11 @@ export function EcranCompter({ onRetour }: { onRetour: () => void }) {
           ))}
         </View>
 
-        <Text style={[styles.message, choisi === manche.quantite && styles.messageGagne]}>
-          {message || 'Touche les objets pour les compter 👆'}
-        </Text>
+        <BulleMascotte
+          taille={48}
+          humeur={humeurReponse(choisi, choisi === manche.quantite)}
+          message={message || 'Touche les objets pour les compter 👆'}
+        />
 
         <View style={styles.reponses}>
           {manche.propositions.map((valeur) => {
@@ -205,14 +214,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pastilleTexte: { color: colors.papier, fontWeight: '800', fontSize: 12 },
-  message: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.grisTexte,
-    textAlign: 'center',
-    minHeight: 24,
-  },
-  messageGagne: { color: colors.vertFonce, fontSize: 20 },
   reponses: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
   reponse: {
     minWidth: 74,

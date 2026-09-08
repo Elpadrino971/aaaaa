@@ -10,6 +10,7 @@ import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-na
 
 import { Confetti } from '../components/Confetti';
 import { Pilule } from '../components/Boutons';
+import { BulleMascotte } from '../components/BulleMascotte';
 import { Ecran } from '../components/Ecran';
 import { ENCOURAGEMENTS, PRAISES, WORDS, WordEntry } from '../data/content';
 import { useFeedback } from '../lib/feedback';
@@ -27,7 +28,7 @@ function preparer(mot: WordEntry): Jeton[] {
 }
 
 export function EcranMots({ onRetour }: { onRetour: () => void }) {
-  const { dire, vibrer } = useFeedback();
+  const { dire, reagir } = useFeedback();
   const { progress, ajouterEtoiles, enregistrerRecord } = useProgress();
   const { width } = useWindowDimensions();
 
@@ -78,7 +79,7 @@ export function EcranMots({ onRetour }: { onRetour: () => void }) {
 
     if (jeton.lettre !== attendue) {
       setFaux(jeton.id);
-      vibrer('erreur');
+      reagir('erreur');
       setMessage(pick(ENCOURAGEMENTS));
       dire(`La lettre suivante est ${attendue}`);
       setTimeout(() => setFaux(null), 600);
@@ -88,12 +89,12 @@ export function EcranMots({ onRetour }: { onRetour: () => void }) {
     const suite = [...places, jeton.lettre];
     setPlaces(suite);
     setJetons((liste) => liste.map((j) => (j.id === jeton.id ? { ...j, utilise: true } : j)));
-    vibrer('tap');
+    reagir('tap');
 
     if (suite.length === lettres.length) {
       const total = reussis + 1;
       setReussis(total);
-      vibrer('succes');
+      reagir('succes');
       setSalve((n) => n + 1);
       ajouterEtoiles(1);
       enregistrerRecord('mots', total);
@@ -104,7 +105,7 @@ export function EcranMots({ onRetour }: { onRetour: () => void }) {
       dire(jeton.lettre);
     }
   }, [ajouterEtoiles, dire, enregistrerRecord, gagne, lettres, mot.spoken,
-    places, reussis, vibrer]);
+    places, reussis, reagir]);
 
   return (
     <Ecran titre="Je forme des mots" degrade={gradients.mots} onRetour={onRetour}>
@@ -136,9 +137,11 @@ export function EcranMots({ onRetour }: { onRetour: () => void }) {
           ))}
         </View>
 
-        <Text style={[styles.message, gagne && styles.messageGagne]}>
-          {message || 'Touche les lettres dans le bon ordre 👆'}
-        </Text>
+        <BulleMascotte
+          taille={48}
+          humeur={gagne ? 'content' : faux !== null ? 'oups' : 'normal'}
+          message={message || 'Touche les lettres dans le bon ordre 👆'}
+        />
 
         <View style={styles.jetons}>
           {jetons.map((jeton) => (
@@ -212,14 +215,6 @@ const styles = StyleSheet.create({
   },
   caseTexte: { fontSize: 30, fontWeight: '800', color: colors.encre },
   caseTexteRempli: { color: colors.papier },
-  message: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.grisTexte,
-    textAlign: 'center',
-    minHeight: 24,
-  },
-  messageGagne: { color: colors.vertFonce, fontSize: 20 },
   jetons: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
   jeton: {
     borderRadius: radius.s,

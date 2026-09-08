@@ -9,6 +9,7 @@ import * as Haptics from 'expo-haptics';
 import * as Speech from 'expo-speech';
 
 import { useProgress } from '../state/progress';
+import { jouerSon, Son } from './sons';
 
 const VOIX = {
   language: 'fr-FR',
@@ -16,9 +17,21 @@ const VOIX = {
   rate: 0.92,    // légèrement ralentie pour être bien comprise
 } as const;
 
+/** À chaque réaction correspond un bruitage et une vibration. */
+const BRUITAGES: Record<Reaction, Son> = {
+  tap: 'pop',
+  etape: 'bien',
+  succes: 'bravo',
+  erreur: 'oups',
+  etoile: 'etoile',
+  page: 'page',
+};
+
+export type Reaction = 'tap' | 'etape' | 'succes' | 'erreur' | 'etoile' | 'page';
+
 export function useFeedback() {
   const { progress } = useProgress();
-  const { voix, vibrations } = progress.reglages;
+  const { voix, vibrations, sons } = progress.reglages;
 
   /** Lit un texte à voix haute, en interrompant la phrase précédente. */
   const dire = useCallback((texte: string) => {
@@ -45,9 +58,9 @@ export function useFeedback() {
     Speech.stop();
   }, []);
 
-  const vibrer = useCallback((type: 'succes' | 'erreur' | 'tap') => {
+  const vibrer = useCallback((type: Reaction) => {
     if (!vibrations || Platform.OS === 'web') return;
-    if (type === 'succes') {
+    if (type === 'succes' || type === 'etoile') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     } else if (type === 'erreur') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
@@ -56,8 +69,18 @@ export function useFeedback() {
     }
   }, [vibrations]);
 
+  /**
+   * Le retour complet d'un évènement : son et vibration à la fois. Les deux
+   * vont toujours de pair, autant n'avoir qu'un appel à écrire — et chacun
+   * reste coupable séparément dans la zone parents.
+   */
+  const reagir = useCallback((type: Reaction) => {
+    if (sons) jouerSon(BRUITAGES[type]);
+    vibrer(type);
+  }, [sons, vibrer]);
+
   return useMemo(
-    () => ({ dire, direSuite, taire, vibrer }),
-    [dire, direSuite, taire, vibrer],
+    () => ({ dire, direSuite, taire, reagir }),
+    [dire, direSuite, taire, reagir],
   );
 }

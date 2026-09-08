@@ -25,7 +25,7 @@ type Props = { onRetour: () => void; onCreerHeros: () => void };
 
 export function EcranHistoire({ onRetour, onCreerHeros }: Props) {
   const { progress, ajouterEtoiles, enregistrerRecord } = useProgress();
-  const { dire, taire, vibrer } = useFeedback();
+  const { dire, taire, reagir } = useFeedback();
 
   const heros = progress.heros;
   const [decor, setDecor] = useState<Decor | null>(null);
@@ -54,10 +54,10 @@ export function EcranHistoire({ onRetour, onCreerHeros }: Props) {
     if (!derniere || recompense) return;
     setRecompense(true);
     setSalve((n) => n + 1);
-    vibrer('succes');
+    reagir('etoile');
     ajouterEtoiles(2);
     enregistrerRecord('histoires', (progress.records.histoires ?? 0) + 1);
-  }, [ajouterEtoiles, derniere, enregistrerRecord, progress.records.histoires, recompense, vibrer]);
+  }, [ajouterEtoiles, derniere, enregistrerRecord, progress.records.histoires, recompense, reagir]);
 
   const commencer = useCallback((d: Decor) => {
     setDecor(d);
@@ -76,11 +76,11 @@ export function EcranHistoire({ onRetour, onCreerHeros }: Props) {
   }, [taire]);
 
   const choisir = useCallback((i: number) => {
-    vibrer('tap');
+    reagir('page');
     if (page === 1) setGeste(i);
     else setCachette(i);
     setPage((p) => p + 1);
-  }, [page, vibrer]);
+  }, [page, reagir]);
 
   if (!heros) {
     return (
@@ -187,7 +187,10 @@ export function EcranHistoire({ onRetour, onCreerHeros }: Props) {
             <View style={styles.navigation}>
               <Pilule
                 titre="‹"
-                onPress={() => setPage((p) => Math.max(0, p - 1))}
+                onPress={() => {
+                  reagir('page');
+                  setPage((p) => Math.max(0, p - 1));
+                }}
                 desactive={page === 0}
                 accessibilityLabel="Page précédente"
                 style={styles.boutonFleche}
@@ -202,7 +205,10 @@ export function EcranHistoire({ onRetour, onCreerHeros }: Props) {
               ) : (
                 <Pilule
                   titre="Suivant ›"
-                  onPress={() => setPage((p) => Math.min(pages.length - 1, p + 1))}
+                  onPress={() => {
+                    reagir('page');
+                    setPage((p) => Math.min(pages.length - 1, p + 1));
+                  }}
                   couleur={colors.turquoise}
                   couleurTexte={colors.papier}
                 />

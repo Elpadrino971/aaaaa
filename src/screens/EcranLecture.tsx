@@ -16,6 +16,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Confetti } from '../components/Confetti';
 import { Pilule } from '../components/Boutons';
+import { BulleMascotte } from '../components/BulleMascotte';
 import { Ecran } from '../components/Ecran';
 import { ENCOURAGEMENTS, PRAISES } from '../data/content';
 import { MOTS_A_LIRE, MotLu, SYLLABES, TOUTES_SYLLABES } from '../data/lecture';
@@ -59,7 +60,7 @@ function tirerMot(): MancheMot {
 }
 
 export function EcranLecture({ onRetour }: { onRetour: () => void }) {
-  const { dire, direSuite, vibrer } = useFeedback();
+  const { dire, direSuite, reagir } = useFeedback();
   const { progress, ajouterEtoiles, enregistrerRecord } = useProgress();
 
   const [mode, setMode] = useState<Mode>('syllabes');
@@ -108,7 +109,7 @@ export function EcranLecture({ onRetour }: { onRetour: () => void }) {
       const nouvelleSerie = serie + 1;
       setSerie(nouvelleSerie);
       setGagne(true);
-      vibrer('succes');
+      reagir('succes');
       setSalve((n) => n + 1);
       ajouterEtoiles(1);
       enregistrerRecord(mode === 'syllabes' ? 'syllabes' : 'lecture', nouvelleSerie);
@@ -117,7 +118,7 @@ export function EcranLecture({ onRetour }: { onRetour: () => void }) {
       dire(`${bravo} ${aDire}`);
       setTimeout(nouvelleManche, 2000);
     } else {
-      vibrer('erreur');
+      reagir('erreur');
       setSerie(0);
       setMessage(pick(ENCOURAGEMENTS));
       setTimeout(() => {
@@ -126,7 +127,7 @@ export function EcranLecture({ onRetour }: { onRetour: () => void }) {
       }, 1000);
     }
   }, [ajouterEtoiles, choisi, dire, enoncer, enregistrerRecord, mode,
-    nouvelleManche, serie, vibrer]);
+    nouvelleManche, serie, reagir]);
 
   const consigne = mode === 'syllabes'
     ? 'Touche la syllabe que tu entends'
@@ -247,11 +248,13 @@ export function EcranLecture({ onRetour }: { onRetour: () => void }) {
           </>
         )}
 
-        <Text style={[styles.message, gagne && styles.messageGagne]}>
-          {message || (mode === 'syllabes'
+        <BulleMascotte
+          taille={48}
+          humeur={gagne ? 'content' : choisi !== null ? 'oups' : 'normal'}
+          message={message || (mode === 'syllabes'
             ? 'Réécoute autant de fois que tu veux 👂'
-            : 'Touche une syllabe pour l\'entendre 👀')}
-        </Text>
+            : 'Touche une syllabe pour l’entendre 👀')}
+        />
 
         <Text style={styles.score}>
           Série : {serie}   •   Record :{' '}
@@ -318,13 +321,5 @@ const styles = StyleSheet.create({
   faux: { backgroundColor: colors.rouge },
   texteFort: { color: colors.papier },
   enfonce: { transform: [{ translateY: 2 }] },
-  message: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.grisTexte,
-    textAlign: 'center',
-    minHeight: 24,
-  },
-  messageGagne: { color: colors.vertFonce, fontSize: 20 },
   score: { fontSize: 14, fontWeight: '700', color: colors.grisTexte, marginTop: 'auto' },
 });

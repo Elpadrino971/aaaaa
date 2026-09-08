@@ -30,7 +30,7 @@ export function useFeedback() {
   /**
    * Lit plusieurs morceaux à la suite, en les séparant nettement.
    * Sert à déchiffrer un mot syllabe par syllabe : « LA… PIN… lapin ».
-   * expo-speech met les énoncés en file d'attente, il suffit donc de les
+   * expo-speech met les énoncés en file d’attente, il suffit donc de les
    * empiler après un seul arrêt.
    */
   const direSuite = useCallback((morceaux: string[], lent = true) => {

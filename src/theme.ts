@@ -35,6 +35,8 @@ export const gradients = {
   memory: ['#d5f0ff', '#e2e0ff'],
   sons: ['#ffe3e8', '#ffe9cf'],
   lecture: ['#d9f3ef', '#d6e8ff'],
+  heros: ['#ffe7d1', '#e8dcff'],
+  histoire: ['#e3ecff', '#ffe4f2'],
 } as const;
 
 export const radius = {

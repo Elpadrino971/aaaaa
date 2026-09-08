@@ -1,6 +1,6 @@
 /**
- * Boutons de l'application : grandes cibles (au moins 56 dp), coins très
- * arrondis, retour visuel immédiat à l'appui.
+ * Boutons de l’application : grandes cibles (au moins 56 dp), coins très
+ * arrondis, retour visuel immédiat à l’appui.
  */
 
 import React from 'react';
@@ -20,7 +20,7 @@ type PilulleProps = {
   accessibilityLabel?: string;
 };
 
-/** Bouton d'action arrondi, utilisé pour la navigation dans les jeux. */
+/** Bouton d’action arrondi, utilisé pour la navigation dans les jeux. */
 export function Pilule({
   titre, onPress, couleur = colors.papier, couleurTexte = colors.encre,
   desactive = false, style, accessibilityLabel,
@@ -53,7 +53,7 @@ type CarteJeuProps = {
   onPress: () => void;
 };
 
-/** Grande carte colorée du menu d'accueil. */
+/** Grande carte colorée du menu d’accueil. */
 export function CarteJeu({ titre, sousTitre, emoji, couleur, onPress }: CarteJeuProps) {
   return (
     <Pressable

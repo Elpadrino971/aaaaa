@@ -1,6 +1,6 @@
 /**
  * Pluie de confettis jouée à chaque réussite.
- * `trigger` est un compteur : dès qu'il change, une nouvelle salve part.
+ * `trigger` est un compteur : dès qu’il change, une nouvelle salve part.
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';

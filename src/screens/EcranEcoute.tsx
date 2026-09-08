@@ -1,7 +1,7 @@
 /**
- * Jeu « J'écoute » : l'application prononce une lettre ou un chiffre,
- * l'enfant retrouve le bon symbole parmi quatre propositions.
- * C'est l'exercice miroir du tracé : reconnaître avant d'écrire.
+ * Jeu « J’écoute » : l’application prononce une lettre ou un chiffre,
+ * l’enfant retrouve le bon symbole parmi quatre propositions.
+ * C’est l’exercice miroir du tracé : reconnaître avant d’écrire.
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -88,7 +88,7 @@ export function EcranEcoute({ onRetour }: { onRetour: () => void }) {
     prononcer, serie, vibrer]);
 
   return (
-    <Ecran titre="J'écoute" degrade={gradients.ecoute} onRetour={onRetour}>
+    <Ecran titre="J’écoute" degrade={gradients.ecoute} onRetour={onRetour}>
       <View style={styles.centre}>
         <View style={styles.onglets}>
           <Pilule

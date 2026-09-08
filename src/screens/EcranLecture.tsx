@@ -1,14 +1,14 @@
 /**
  * Jeu « Je lis » : le déchiffrage, en deux étapes.
  *
- *   • Syllabes — l'application prononce une syllabe, l'enfant la retrouve parmi
+ *   • Syllabes — l’application prononce une syllabe, l’enfant la retrouve parmi
  *     quatre. Les leurres sont choisis exprès : même consonne avec une autre
  *     voyelle, et même voyelle avec une autre consonne, pour obliger à écouter
- *     les deux sons plutôt qu'à reconnaître une forme globale.
+ *     les deux sons plutôt qu’à reconnaître une forme globale.
  *
- *   • Mots — le mot s'affiche découpé en syllabes que l'on peut toucher une à
- *     une pour les entendre, puis l'enfant choisit l'image correspondante.
- *     C'est la lecture complète : déchiffrer, puis comprendre.
+ *   • Mots — le mot s’affiche découpé en syllabes que l’on peut toucher une à
+ *     une pour les entendre, puis l’enfant choisit l’image correspondante.
+ *     C’est la lecture complète : déchiffrer, puis comprendre.
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -30,7 +30,7 @@ type MancheSyllabe = { cible: string; propositions: string[] };
 type MancheMot = { cible: MotLu; propositions: MotLu[] };
 
 /**
- * Construit les quatre propositions d'une syllabe : la bonne, une de même
+ * Construit les quatre propositions d’une syllabe : la bonne, une de même
  * consonne, une de même voyelle, et une quelconque.
  */
 function tirerSyllabe(): MancheSyllabe {

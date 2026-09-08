@@ -1,35 +1,35 @@
 /**
  * Tracés des lettres et des chiffres, dans les trois écritures enseignées à
- * l'école maternelle et au CP :
+ * l’école maternelle et au CP :
  *
- *   • capitales — les majuscules d'imprimerie (A B C), première écriture apprise ;
- *   • script    — les minuscules d'imprimerie (a b c), celle des livres ;
- *   • cursive   — l'écriture attachée (𝑎 𝑏 𝑐), celle du cahier.
+ *   • capitales — les majuscules d’imprimerie (A B C), première écriture apprise ;
+ *   • script    — les minuscules d’imprimerie (a b c), celle des livres ;
+ *   • cursive   — l’écriture attachée (𝑎 𝑏 𝑐), celle du cahier.
  *
- * Chaque signe est une liste de traits, dans l'ordre où on apprend à les
+ * Chaque signe est une liste de traits, dans l’ordre où on apprend à les
  * écrire, et chaque trait est un chemin SVG exprimé dans un repère carré de
  * 100 x 100 (origine en haut à gauche).
  *
- * Les minuscules partagent une réglure commune, ce qui permet d'afficher le
+ * Les minuscules partagent une réglure commune, ce qui permet d’afficher le
  * même cahier derrière les deux écritures :
  *
  *   y =  14  haut des lettres montantes (l, b, h…) et des capitales
  *   y =  48  hauteur des petites lettres (a, o, e…)
- *   y =  82  ligne d'écriture
+ *   y =  82  ligne d’écriture
  *   y =  93  bas des lettres descendantes (g, j, p…)
  */
 
 export type Ecriture = 'capitales' | 'script' | 'cursive' | 'chiffres';
 
-/** Réglure d'une écriture, en unités du repère 0-100. */
+/** Réglure d’une écriture, en unités du repère 0-100. */
 export type Reglure = {
   /** Haut des lettres montantes. */
   montante: number;
-  /** Hauteur des petites lettres ; égale à `montante` quand il n'y en a pas. */
+  /** Hauteur des petites lettres ; égale à `montante` quand il n’y en a pas. */
   petite: number;
-  /** Ligne d'écriture. */
+  /** Ligne d’écriture. */
   ligne: number;
-  /** Bas des lettres descendantes ; égal à `ligne` quand il n'y en a pas. */
+  /** Bas des lettres descendantes ; égal à `ligne` quand il n’y en a pas. */
   descendante: number;
 };
 
@@ -63,9 +63,9 @@ const CAPITALES: Record<string, string[]> = {
 };
 
 /**
- * Minuscules d'imprimerie. Les lettres rondes (a, b, d, g, o, p, q) partagent
+ * Minuscules d’imprimerie. Les lettres rondes (a, b, d, g, o, p, q) partagent
  * le même cercle, centré en (50, 65) et de rayon 17 : il va donc exactement de
- * la hauteur des petites lettres à la ligne d'écriture.
+ * la hauteur des petites lettres à la ligne d’écriture.
  */
 const SCRIPT: Record<string, string[]> = {
   a: ['M50 48 A17 17 0 1 0 50 82 A17 17 0 1 0 50 48', 'M67 48 V82'],
@@ -102,12 +102,12 @@ const SCRIPT: Record<string, string[]> = {
 
 /**
  * Écriture attachée. Chaque lettre commence par une attaque qui monte de la
- * ligne d'écriture et se termine par une sortie qui repart vers la droite :
- * c'est ce qui permettra plus tard de lier les lettres entre elles.
+ * ligne d’écriture et se termine par une sortie qui repart vers la droite :
+ * c’est ce qui permettra plus tard de lier les lettres entre elles.
  *
  * Les lettres rondes (a, c, d, g, o, q) utilisent le même ovale, centré en
  * (39, 65) et de demi-axes 11 et 17, parcouru dans le sens inverse des
- * aiguilles d'une montre comme on l'apprend à l'école.
+ * aiguilles d’une montre comme on l’apprend à l’école.
  */
 const CURSIVE: Record<string, string[]> = {
   a: ['M16 82 C22 77 33 57 44.5 50.3 A11 17 0 1 0 33.5 79.7 A11 17 0 1 0 44.5 50.3 C48 55 50 66 50 82 C54 87 60 85 66 76'],
@@ -179,7 +179,7 @@ const EPAISSEURS: Record<Ecriture, number> = {
   chiffres: 12,
 };
 
-/** Étiquette courte pour les boutons de choix d'écriture. */
+/** Étiquette courte pour les boutons de choix d’écriture. */
 export const ETIQUETTES: Record<Ecriture, string> = {
   capitales: 'ABC',
   script: 'abc',
@@ -206,9 +206,9 @@ export function epaisseur(ecriture: Ecriture): number {
 }
 
 /**
- * Capitale correspondant à un signe, quelle que soit l'écriture.
+ * Capitale correspondant à un signe, quelle que soit l’écriture.
  * Sert à retrouver le mot-repère (« a comme Avion ») et à noter la
- * progression d'une même lettre d'une écriture à l'autre.
+ * progression d’une même lettre d’une écriture à l’autre.
  */
 export function versCapitale(ch: string): string {
   return ch.toUpperCase();

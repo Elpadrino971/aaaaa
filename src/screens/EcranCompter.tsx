@@ -1,6 +1,6 @@
 /**
- * Jeu « Je compte » : des objets apparaissent, l'enfant choisit le bon nombre.
- * Il peut aussi toucher chaque objet un par un : l'application compte à voix
+ * Jeu « Je compte » : des objets apparaissent, l’enfant choisit le bon nombre.
+ * Il peut aussi toucher chaque objet un par un : l’application compte à voix
  * haute, ce qui installe la correspondance un objet = un nombre.
  */
 

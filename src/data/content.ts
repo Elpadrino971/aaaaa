@@ -1,7 +1,7 @@
 /**
  * Contenu pédagogique : mots-repères, listes de mots, illustrations (emoji).
- * Tout est en français et embarqué dans l'application — aucune ressource
- * distante n'est nécessaire, l'app fonctionne hors ligne.
+ * Tout est en français et embarqué dans l’application — aucune ressource
+ * distante n’est nécessaire, l’app fonctionne hors ligne.
  */
 
 /** Un mot-repère par lettre : « A comme Avion ». */
@@ -37,14 +37,14 @@ export const WORDS: WordEntry[] = [
   { word: 'ROI', emoji: '👑', spoken: 'le roi' },
   { word: 'CHAT', emoji: '🐱', spoken: 'le chat' },
   { word: 'LUNE', emoji: '🌙', spoken: 'la lune' },
-  { word: 'OURS', emoji: '🐻', spoken: "l'ours" },
+  { word: 'OURS', emoji: '🐻', spoken: "l’ours" },
   { word: 'VÉLO', emoji: '🚲', spoken: 'le vélo' },
   { word: 'MAIN', emoji: '✋', spoken: 'la main' },
   { word: 'LION', emoji: '🦁', spoken: 'le lion' },
   { word: 'POMME', emoji: '🍎', spoken: 'la pomme' },
   { word: 'FLEUR', emoji: '🌸', spoken: 'la fleur' },
   { word: 'CHIEN', emoji: '🐶', spoken: 'le chien' },
-  { word: 'ARBRE', emoji: '🌳', spoken: "l'arbre" },
+  { word: 'ARBRE', emoji: '🌳', spoken: "l’arbre" },
   { word: 'VACHE', emoji: '🐮', spoken: 'la vache' },
   { word: 'PIZZA', emoji: '🍕', spoken: 'la pizza' },
   { word: 'GLACE', emoji: '🍦', spoken: 'la glace' },
@@ -58,7 +58,7 @@ export const WORDS: WordEntry[] = [
   { word: 'MAISON', emoji: '🏠', spoken: 'la maison' },
   { word: 'BATEAU', emoji: '⛵', spoken: 'le bateau' },
   { word: 'SOLEIL', emoji: '☀️', spoken: 'le soleil' },
-  { word: 'ÉTOILE', emoji: '⭐', spoken: "l'étoile" },
+  { word: 'ÉTOILE', emoji: '⭐', spoken: "l’étoile" },
   { word: 'GÂTEAU', emoji: '🎂', spoken: 'le gâteau' },
   { word: 'SOURIS', emoji: '🐭', spoken: 'la souris' },
   { word: 'BALLON', emoji: '🎈', spoken: 'le ballon' },

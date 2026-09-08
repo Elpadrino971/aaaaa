@@ -1,6 +1,6 @@
 /**
  * Zone parents : réglages, aperçu de la progression et remise à zéro.
- * Volontairement sobre — c'est le seul écran qui ne s'adresse pas à l'enfant.
+ * Volontairement sobre — c’est le seul écran qui ne s’adresse pas à l’enfant.
  */
 
 import React, { useCallback } from 'react';
@@ -12,21 +12,22 @@ import { Ecriture, glyphList, versCapitale } from '../data/glyphs';
 import { useProgress } from '../state/progress';
 import { colors, gradients, radius, shadow } from '../theme';
 
-/** Les quatre séries suivies, dans l'ordre d'apprentissage. */
+/** Les quatre séries suivies, dans l’ordre d’apprentissage. */
 const SERIES: { ecriture: Ecriture; titre: string }[] = [
-  { ecriture: 'capitales', titre: "Capitales d'imprimerie" },
-  { ecriture: 'script', titre: "Minuscules d'imprimerie" },
+  { ecriture: 'capitales', titre: "Capitales d’imprimerie" },
+  { ecriture: 'script', titre: "Minuscules d’imprimerie" },
   { ecriture: 'cursive', titre: 'Écriture attachée' },
   { ecriture: 'chiffres', titre: 'Chiffres' },
 ];
 
 const RECORDS: { cle: string; libelle: string; unite: string }[] = [
-  { cle: 'sons', libelle: 'Les sons', unite: "bonnes réponses d'affilée" },
-  { cle: 'syllabes', libelle: 'Je lis — syllabes', unite: "bonnes réponses d'affilée" },
-  { cle: 'lecture', libelle: 'Je lis — mots', unite: "bonnes réponses d'affilée" },
-  { cle: 'compter', libelle: 'Je compte', unite: "bonnes réponses d'affilée" },
-  { cle: 'ecoute', libelle: "J'écoute", unite: "bonnes réponses d'affilée" },
+  { cle: 'sons', libelle: 'Les sons', unite: "bonnes réponses d’affilée" },
+  { cle: 'syllabes', libelle: 'Je lis — syllabes', unite: "bonnes réponses d’affilée" },
+  { cle: 'lecture', libelle: 'Je lis — mots', unite: "bonnes réponses d’affilée" },
+  { cle: 'compter', libelle: 'Je compte', unite: "bonnes réponses d’affilée" },
+  { cle: 'ecoute', libelle: "J’écoute", unite: "bonnes réponses d’affilée" },
   { cle: 'mots', libelle: 'Je forme des mots', unite: 'mots dans une partie' },
+  { cle: 'histoires', libelle: 'Mon histoire', unite: 'histoires terminées' },
 ];
 
 export function EcranParents({ onRetour }: { onRetour: () => void }) {
@@ -114,18 +115,24 @@ export function EcranParents({ onRetour }: { onRetour: () => void }) {
       <View style={[styles.panneau, shadow(4)]}>
         <Text style={styles.titre}>À propos</Text>
         <Text style={styles.paragraphe}>
-          Ludo Malin s'adresse aux enfants de 3 à 7 ans. Tout fonctionne hors ligne :
-          aucune donnée ne quitte l'appareil, il n'y a ni publicité, ni compte à créer,
+          Ludo Malin s’adresse aux enfants de 3 à 7 ans. Tout fonctionne hors ligne :
+          aucune donnée ne quitte l’appareil, il n’y a ni publicité, ni compte à créer,
           ni achat intégré.
         </Text>
         <Text style={styles.paragraphe}>
-          Conseil : dans « Je trace », laissez l'enfant suivre le point vert numéroté
+          « Mon histoire » n’utilise aucune photo : le héros est un personnage
+          dessiné que l’enfant compose lui-même, et les récits sont assemblés sur
+          l’appareil à partir de textes écrits pour être déchiffrables. Le prénom
+          saisi ne sert qu’aux histoires et reste sur le téléphone.
+        </Text>
+        <Text style={styles.paragraphe}>
+          Conseil : dans « Je trace », laissez l’enfant suivre le point vert numéroté
           plutôt que de viser la perfection du geste. La tolérance est volontairement
           large pour les doigts encore malhabiles.
         </Text>
         <Text style={styles.paragraphe}>
-          L'ordre habituel de l'école : d'abord les capitales, puis les minuscules
-          d'imprimerie, enfin l'attaché — souvent seulement en grande section ou au
+          L’ordre habituel de l’école : d’abord les capitales, puis les minuscules
+          d’imprimerie, enfin l’attaché — souvent seulement en grande section ou au
           CP. « Les sons » prépare la lecture, « Je lis » la met en pratique.
         </Text>
         <Pilule
@@ -134,6 +141,10 @@ export function EcranParents({ onRetour }: { onRetour: () => void }) {
           couleur={colors.rouge}
           couleurTexte={colors.papier}
         />
+        <Text style={styles.note}>
+          Les étoiles, les tracés et les records sont effacés. Le héros et les
+          réglages sont conservés.
+        </Text>
       </View>
     </Ecran>
   );
@@ -151,6 +162,7 @@ const styles = StyleSheet.create({
   chiffreCle: { fontSize: 26, fontWeight: '800', color: colors.encre },
   ligne: { fontSize: 15, color: colors.grisTexte, fontWeight: '600' },
   paragraphe: { fontSize: 15, lineHeight: 22, color: colors.grisTexte },
+  note: { fontSize: 13, lineHeight: 19, color: colors.grisMoyen, marginTop: 4 },
   separateur: { height: 1, backgroundColor: colors.gris },
   pastilles: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   pastille: {

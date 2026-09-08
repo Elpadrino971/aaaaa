@@ -13,7 +13,7 @@ export function shuffle<T>(list: readonly T[]): T[] {
   return a;
 }
 
-/** Entier aléatoire dans l'intervalle fermé [min, max]. */
+/** Entier aléatoire dans l’intervalle fermé [min, max]. */
 export function randInt(min: number, max: number): number {
   return min + Math.floor(Math.random() * (max - min + 1));
 }

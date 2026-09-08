@@ -2,16 +2,16 @@
  * Échantillonnage de chemins SVG en pur JavaScript.
  *
  * Sur le web on appellerait getPointAtLength() ; en React Native cette API
- * n'existe pas, on convertit donc nous-mêmes les commandes utilisées par les
+ * n’existe pas, on convertit donc nous-mêmes les commandes utilisées par les
  * tracés de lettres (M, L, H, V, C, A, Z) en une suite de points régulièrement
- * espacés. C'est cette suite qui sert ensuite à savoir si le doigt de l'enfant
+ * espacés. C’est cette suite qui sert ensuite à savoir si le doigt de l’enfant
  * suit bien le chemin.
  */
 
 export type Point = { x: number; y: number };
 
 export type SampledPath = {
-  /** Points espacés d'environ `step` unités le long du tracé. */
+  /** Points espacés d’environ `step` unités le long du tracé. */
   points: Point[];
   /** Longueur totale du tracé, dans les unités du repère. */
   length: number;
@@ -47,7 +47,7 @@ function cubicAt(p0: Point, c1: Point, c2: Point, p1: Point, t: number): Point {
   };
 }
 
-/** Angle orienté entre deux vecteurs, utilisé par la conversion d'arc. */
+/** Angle orienté entre deux vecteurs, utilisé par la conversion d’arc. */
 function vectorAngle(ux: number, uy: number, vx: number, vy: number) {
   const sign = ux * vy - uy * vx < 0 ? -1 : 1;
   const dot = (ux * vx + uy * vy) / (Math.hypot(ux, uy) * Math.hypot(vx, vy));
@@ -65,8 +65,8 @@ type ArcCenter = {
 };
 
 /**
- * Passe de la description « endpoint » d'un arc SVG à sa description « centre »,
- * suivant l'annexe F.6 de la spécification SVG.
+ * Passe de la description « endpoint » d’un arc SVG à sa description « centre »,
+ * suivant l’annexe F.6 de la spécification SVG.
  */
 function arcToCenter(
   x1: number, y1: number,
@@ -87,7 +87,7 @@ function arcToCenter(
   const x1p = cosP * dx2 + sinP * dy2;
   const y1p = -sinP * dx2 + cosP * dy2;
 
-  // Agrandit les rayons s'ils sont trop petits pour relier les deux extrémités.
+  // Agrandit les rayons s’ils sont trop petits pour relier les deux extrémités.
   const lambda = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry);
   if (lambda > 1) {
     const s = Math.sqrt(lambda);
@@ -164,7 +164,7 @@ function flatten(d: string): Point[] {
         push(p);
         cur = p;
         start = p;
-        // Les paires suivantes d'un « M » sont des lignes implicites.
+        // Les paires suivantes d’un « M » sont des lignes implicites.
         cmd = rel ? 'l' : 'L';
         break;
       }
@@ -228,7 +228,7 @@ const cache = new Map<string, SampledPath>();
 
 /**
  * Découpe un chemin SVG en points régulièrement espacés.
- * Le résultat est mémorisé : chaque lettre n'est calculée qu'une fois.
+ * Le résultat est mémorisé : chaque lettre n’est calculée qu’une fois.
  */
 export function samplePath(d: string, step = 1.5): SampledPath {
   const key = `${step}|${d}`;

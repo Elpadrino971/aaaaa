@@ -1,9 +1,9 @@
 /**
- * Jeu « Je trace » : l'enfant suit du doigt le tracé d'une lettre ou d'un
+ * Jeu « Je trace » : l’enfant suit du doigt le tracé d’une lettre ou d’un
  * chiffre, trait par trait, dans le bon sens.
  *
- * Les lettres sont proposées dans les trois écritures de l'école — capitales,
- * script, cursive — que l'on change d'un geste sans quitter l'écran.
+ * Les lettres sont proposées dans les trois écritures de l’école — capitales,
+ * script, cursive — que l’on change d’un geste sans quitter l’écran.
  *
  * Principe de validation : chaque trait est converti en une suite de points
  * (voir pathSampler). Un curseur avance le long de cette suite quand le doigt
@@ -37,7 +37,7 @@ import { colors, gradients, radius, shadow } from '../theme';
 
 /** Distance maximale au chemin, en unités du repère 0-100. Volontairement large. */
 const TOLERANCE = 11;
-/** Nombre de points que le doigt peut franchir d'un coup (évite les raccourcis). */
+/** Nombre de points que le doigt peut franchir d’un coup (évite les raccourcis). */
 const AVANCE_MAX = 16;
 /** Le trait est validé quand il reste moins de 3 points à parcourir. */
 const MARGE_FIN = 3;
@@ -47,7 +47,7 @@ const GUIDE = '#dbe1f7';
 type TraitEchantillonne = { d: string; points: Point[]; longueur: number };
 
 type Props = {
-  /** 'chiffres' fige l'écriture ; 'lettres' laisse le choix entre les trois. */
+  /** 'chiffres' fige l’écriture ; 'lettres' laisse le choix entre les trois. */
   groupe: 'lettres' | 'chiffres';
   onRetour: () => void;
 };
@@ -80,7 +80,7 @@ export function EcranTrace({ groupe, onRetour }: Props) {
   const [message, setMessage] = useState('');
   const [salve, setSalve] = useState(0);
 
-  // Le PanResponder est créé une seule fois : il lit l'état par références.
+  // Le PanResponder est créé une seule fois : il lit l’état par références.
   const traitsRef = useRef(traits);
   const traitCourantRef = useRef(0);
   const curseurRef = useRef(-1);
@@ -88,9 +88,9 @@ export function EcranTrace({ groupe, onRetour }: Props) {
   const tailleRef = useRef(1);
   const encreRef = useRef<Point[][]>([]);
 
-  // Position de la zone de dessin à l'écran. On travaille en coordonnées
-  // absolues plutôt qu'avec locationX : cette dernière est relative à
-  // l'élément touché, qui peut être un morceau du dessin plutôt que la zone
+  // Position de la zone de dessin à l’écran. On travaille en coordonnées
+  // absolues plutôt qu’avec locationX : cette dernière est relative à
+  // l’élément touché, qui peut être un morceau du dessin plutôt que la zone
   // elle-même, et les points seraient alors faussés en cours de geste.
   const toileRef = useRef<View>(null);
   const origineRef = useRef<{ x: number; y: number } | null>(null);
@@ -169,7 +169,7 @@ export function EcranTrace({ groupe, onRetour }: Props) {
     curseurRef.current = meilleur;
     setCurseur(meilleur);
 
-    // Trace l'encre du doigt pour que l'enfant voie son geste.
+    // Trace l’encre du doigt pour que l’enfant voie son geste.
     const courant = encreRef.current[traitCourantRef.current] ?? [];
     const dernier = courant[courant.length - 1];
     if (!dernier || Math.hypot(dernier.x - gx, dernier.y - gy) > 1.5) {
@@ -194,7 +194,7 @@ export function EcranTrace({ groupe, onRetour }: Props) {
   }, [terminer, vibrer]);
 
   // Le PanResponder doit être créé une seule fois pour toute la vie de
-  // l'écran : le recréer casse le geste en cours, la vue perdant la main au
+  // l’écran : le recréer casse le geste en cours, la vue perdant la main au
   // premier réaffichage. Les fonctions à jour sont donc atteintes par
   // référence plutôt que capturées.
   const suivrePointRef = useRef(suivrePoint);
@@ -207,8 +207,8 @@ export function EcranTrace({ groupe, onRetour }: Props) {
       const { pageX, pageY, locationX, locationY } = e.nativeEvent;
       const taille = tailleRef.current || 1;
       const origine = origineRef.current;
-      // Repli sur locationX tant que la zone n'a pas été mesurée : au tout
-      // premier contact, l'élément touché est bien la zone de dessin.
+      // Repli sur locationX tant que la zone n’a pas été mesurée : au tout
+      // premier contact, l’élément touché est bien la zone de dessin.
       const x = origine ? pageX - origine.x : locationX;
       const y = origine ? pageY - origine.y : locationY;
       suivrePointRef.current((x / taille) * 100, (y / taille) * 100);
@@ -229,9 +229,9 @@ export function EcranTrace({ groupe, onRetour }: Props) {
     setIndex((nouvelIndex + liste.length) % liste.length);
   }, [liste.length]);
 
-  /** Change d'écriture en restant sur la même lettre. */
+  /** Change d’écriture en restant sur la même lettre. */
   const changerEcriture = useCallback((cible: Ecriture) => {
-    setIndex((i) => i); // la position dans l'alphabet est la même d'une écriture à l'autre
+    setIndex((i) => i); // la position dans l’alphabet est la même d’une écriture à l’autre
     choisirEcriture(cible);
   }, [choisirEcriture]);
 
@@ -424,7 +424,7 @@ export function EcranTrace({ groupe, onRetour }: Props) {
   );
 }
 
-/** Pastille numérotée marquant le début d'un trait. */
+/** Pastille numérotée marquant le début d’un trait. */
 function PointDepart(
   { p, numero, courant }: { p: Point; numero: number; courant: boolean },
 ) {

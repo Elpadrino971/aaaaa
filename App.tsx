@@ -1,8 +1,8 @@
 /**
- * Ludo Malin — jeux d'apprentissage pour les 3-7 ans.
+ * Ludo Malin — jeux d’apprentissage pour les 3-7 ans.
  *
  * Composant racine : installe les fournisseurs de contexte, gère la navigation
- * (un menu et huit jeux) et le bouton retour physique d'Android.
+ * (un menu et neuf jeux) et le bouton retour physique d’Android.
  */
 
 import { StatusBar } from 'expo-status-bar';
@@ -15,6 +15,8 @@ import { Route } from './src/navigation';
 import { EcranAccueil } from './src/screens/EcranAccueil';
 import { EcranCompter } from './src/screens/EcranCompter';
 import { EcranEcoute } from './src/screens/EcranEcoute';
+import { EcranHeros } from './src/screens/EcranHeros';
+import { EcranHistoire } from './src/screens/EcranHistoire';
 import { EcranLecture } from './src/screens/EcranLecture';
 import { EcranMemory } from './src/screens/EcranMemory';
 import { EcranMots } from './src/screens/EcranMots';
@@ -47,7 +49,7 @@ function Navigation() {
     setRoute(cible);
   }, []);
 
-  // Sur Android, le bouton retour ramène au menu plutôt que de quitter l'app.
+  // Sur Android, le bouton retour ramène au menu plutôt que de quitter l’app.
   useEffect(() => {
     const abonnement = BackHandler.addEventListener('hardwareBackPress', () => {
       if (route.nom === 'accueil') return false;
@@ -57,7 +59,7 @@ function Navigation() {
     return () => abonnement.remove();
   }, [route.nom, retour]);
 
-  // Aucune voix ne doit continuer après la fermeture de l'application.
+  // Aucune voix ne doit continuer après la fermeture de l’application.
   useEffect(() => () => { Speech.stop(); }, []);
 
   return (
@@ -67,6 +69,12 @@ function Navigation() {
         <EcranTrace key={route.groupe} groupe={route.groupe} onRetour={retour} />
       )}
       {route.nom === 'sons' && <EcranSons onRetour={retour} />}
+      {route.nom === 'heros' && (
+        <EcranHeros onRetour={retour} onFini={() => naviguer({ nom: 'histoire' })} />
+      )}
+      {route.nom === 'histoire' && (
+        <EcranHistoire onRetour={retour} onCreerHeros={() => naviguer({ nom: 'heros' })} />
+      )}
       {route.nom === 'lecture' && <EcranLecture onRetour={retour} />}
       {route.nom === 'compter' && <EcranCompter onRetour={retour} />}
       {route.nom === 'ecoute' && <EcranEcoute onRetour={retour} />}

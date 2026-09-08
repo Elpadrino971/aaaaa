@@ -1,8 +1,8 @@
 /**
- * Description des écrans de l'application.
+ * Description des écrans de l’application.
  *
- * L'arborescence est plate — un menu et huit jeux — donc une simple union de
- * types et un état dans le composant racine suffisent : pas besoin d'embarquer
+ * L’arborescence est plate — un menu et neuf jeux — donc une simple union de
+ * types et un état dans le composant racine suffisent : pas besoin d’embarquer
  * une bibliothèque de navigation.
  */
 
@@ -15,4 +15,6 @@ export type Route =
   | { nom: 'ecoute' }
   | { nom: 'mots' }
   | { nom: 'memory' }
+  | { nom: 'heros' }
+  | { nom: 'histoire' }
   | { nom: 'parents' };

@@ -1,6 +1,6 @@
 /**
  * Jeu « Le memory des animaux » : retrouver les paires.
- * Il travaille l'attention et la mémoire visuelle, et sert de récréation
+ * Il travaille l’attention et la mémoire visuelle, et sert de récréation
  * entre deux exercices de lettres.
  */
 
@@ -31,7 +31,7 @@ export function EcranMemory({ onRetour }: { onRetour: () => void }) {
   const { progress, ajouterEtoiles, enregistrerRecord } = useProgress();
   const { width } = useWindowDimensions();
 
-  // Douze cartes en quatre colonnes, adaptées à la largeur de l'écran.
+  // Douze cartes en quatre colonnes, adaptées à la largeur de l’écran.
   const largeurCarte = Math.max(64, Math.min(104, Math.floor((Math.min(width, 720) - 28 - 3 * 10) / 4)));
 
   const [cartes, setCartes] = useState<Carte[]>(nouvellePartie);
@@ -48,7 +48,7 @@ export function EcranMemory({ onRetour }: { onRetour: () => void }) {
     vibrer('succes');
     setSalve((n) => n + 1);
     ajouterEtoiles(2);
-    // Moins il y a de coups, meilleur c'est : on garde le record à l'envers.
+    // Moins il y a de coups, meilleur c’est : on garde le record à l’envers.
     const ancien = progress.records.memory ?? 0;
     if (ancien === 0 || coups < ancien) enregistrerRecord('memory', coups);
     const bravo = pick(PRAISES);

@@ -1,6 +1,6 @@
 /**
  * Coquille commune à tous les écrans : fond dégradé, barre de titre,
- * bouton retour et compteur d'étoiles.
+ * bouton retour et compteur d’étoiles.
  */
 
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,7 +15,7 @@ type Props = {
   titre: string;
   degrade: readonly string[];
   onRetour?: () => void;
-  /** Masque le compteur d'étoiles (zone parents par exemple). */
+  /** Masque le compteur d’étoiles (zone parents par exemple). */
   sansEtoiles?: boolean;
   /** Rend le contenu défilant plutôt que fixe. */
   defilant?: boolean;

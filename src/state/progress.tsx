@@ -1,8 +1,8 @@
 /**
- * Progression de l'enfant et réglages, conservés sur l'appareil.
+ * Progression de l’enfant et réglages, conservés sur l’appareil.
  *
  * Une seule clé AsyncStorage suffit : les données sont minuscules et toujours
- * lues d'un bloc. L'écriture est différée pour ne pas ralentir l'interface.
+ * lues d’un bloc. L’écriture est différée pour ne pas ralentir l’interface.
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,6 +10,7 @@ import React, {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 
+import { Avatar } from '../data/avatar';
 import { Ecriture } from '../data/glyphs';
 
 const STORAGE_KEY = 'ludo-malin/v1';
@@ -23,12 +24,14 @@ export type Settings = {
 
 export type Progress = {
   etoiles: number;
-  /** Signes déjà tracés jusqu'au bout, rangés par écriture. */
+  /** Signes déjà tracés jusqu’au bout, rangés par écriture. */
   traces: Record<Ecriture, string[]>;
   /** Meilleure série de bonnes réponses, par jeu. */
   records: Record<string, number>;
   /** Dernière écriture choisie dans le jeu de tracé. */
   ecriturePreferee: Ecriture;
+  /** Le personnage composé par l’enfant ; null tant qu’il n’existe pas. */
+  heros: Avatar | null;
   reglages: Settings;
 };
 
@@ -44,17 +47,19 @@ const VIDE: Progress = {
   traces: TRACES_VIDES,
   records: {},
   ecriturePreferee: 'capitales',
+  heros: null,
   reglages: { voix: true, vibrations: true },
 };
 
 type Ctx = {
   progress: Progress;
-  /** true tant que la sauvegarde n'a pas été relue au démarrage. */
+  /** true tant que la sauvegarde n’a pas été relue au démarrage. */
   chargement: boolean;
   ajouterEtoiles: (n: number) => void;
   marquerTrace: (ecriture: Ecriture, ch: string) => boolean;
   enregistrerRecord: (jeu: string, valeur: number) => void;
   choisirEcriture: (ecriture: Ecriture) => void;
+  definirHeros: (heros: Avatar) => void;
   basculerReglage: (cle: keyof Settings) => void;
   reinitialiser: () => void;
 };
@@ -67,7 +72,7 @@ function fusionner(brut: unknown): Progress {
   if (!brut || typeof brut !== 'object') return VIDE;
   const p = brut as Partial<Progress> & { lettres?: string[]; chiffres?: string[] };
 
-  // Reprend la sauvegarde d'une version antérieure, qui ne connaissait que les
+  // Reprend la sauvegarde d’une version antérieure, qui ne connaissait que les
   // capitales et les chiffres.
   const traces = { ...TRACES_VIDES };
   for (const e of ECRITURES) {
@@ -84,6 +89,7 @@ function fusionner(brut: unknown): Progress {
     ecriturePreferee: ECRITURES.includes(p.ecriturePreferee as Ecriture)
       ? (p.ecriturePreferee as Ecriture)
       : 'capitales',
+    heros: p.heros && typeof p.heros === 'object' ? p.heros : null,
     reglages: { ...VIDE.reglages, ...(p.reglages ?? {}) },
   };
 }
@@ -103,7 +109,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           try {
             setProgress(fusionner(JSON.parse(brut)));
           } catch {
-            // Sauvegarde illisible : on repart d'une progression vierge.
+            // Sauvegarde illisible : on repart d’une progression vierge.
           }
         }
       })
@@ -130,8 +136,8 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   /**
-   * Note un signe comme tracé. Renvoie true s'il s'agit d'une première fois
-   * (l'appelant offre alors une étoile). Chaque écriture compte séparément :
+   * Note un signe comme tracé. Renvoie true s’il s’agit d’une première fois
+   * (l’appelant offre alors une étoile). Chaque écriture compte séparément :
    * tracer « a » en cursive reste à gagner même si « A » est acquis.
    */
   const marquerTrace = useCallback((ecriture: Ecriture, ch: string) => {
@@ -159,19 +165,25 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     setProgress((p) => (p.ecriturePreferee === ecriture ? p : { ...p, ecriturePreferee: ecriture }));
   }, []);
 
+  const definirHeros = useCallback((heros: Avatar) => {
+    setProgress((p) => ({ ...p, heros }));
+  }, []);
+
   const basculerReglage = useCallback((cle: keyof Settings) => {
     setProgress((p) => ({ ...p, reglages: { ...p.reglages, [cle]: !p.reglages[cle] } }));
   }, []);
 
+  // Le héros survit à la remise à zéro : c’est une création de l’enfant, pas
+  // un score. Un bouton distinct permet de le refaire.
   const reinitialiser = useCallback(() => {
-    setProgress((p) => ({ ...VIDE, reglages: p.reglages }));
+    setProgress((p) => ({ ...VIDE, reglages: p.reglages, heros: p.heros }));
   }, []);
 
   const valeur = useMemo<Ctx>(() => ({
     progress, chargement, ajouterEtoiles, marquerTrace, enregistrerRecord,
-    choisirEcriture, basculerReglage, reinitialiser,
+    choisirEcriture, definirHeros, basculerReglage, reinitialiser,
   }), [progress, chargement, ajouterEtoiles, marquerTrace, enregistrerRecord,
-    choisirEcriture, basculerReglage, reinitialiser]);
+    choisirEcriture, definirHeros, basculerReglage, reinitialiser]);
 
   return <ProgressContext.Provider value={valeur}>{children}</ProgressContext.Provider>;
 }

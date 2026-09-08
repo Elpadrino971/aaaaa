@@ -7,7 +7,7 @@
  * C (qui se dit [ʃ]), pas de H muet, pas de mot commençant par une lettre dont
  * le son varie.
  *
- * « Je lis » suit la progression classique : d'abord des syllabes simples
+ * « Je lis » suit la progression classique : d’abord des syllabes simples
  * consonne + voyelle, puis des mots courants découpés en syllabes.
  */
 
@@ -66,13 +66,13 @@ export const MOTS_PAR_SON: MotSon[] = [
   { lettre: 'Z', mot: 'zèbre', emoji: '🦓' },
 ];
 
-/** Les lettres pour lesquelles on dispose d'au moins deux mots-repères. */
+/** Les lettres pour lesquelles on dispose d’au moins deux mots-repères. */
 export const LETTRES_SONS = Array.from(new Set(MOTS_PAR_SON.map((m) => m.lettre)));
 
 /**
  * Syllabes simples, rangées par consonne. On commence par les consonnes
  * « longues » (m, l, s, r, f) qui se prolongent facilement à voix haute et
- * rendent la fusion plus audible pour l'enfant.
+ * rendent la fusion plus audible pour l’enfant.
  */
 export const SYLLABES: string[][] = [
   ['MA', 'ME', 'MI', 'MO', 'MU'],

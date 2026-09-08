@@ -3,8 +3,8 @@
  * lecture. Deux types de questions alternent pour travailler le lien
  * lettre ↔ son dans les deux sens :
  *
- *   • une image est montrée, l'enfant retrouve la lettre qui commence le mot ;
- *   • une lettre est donnée, l'enfant retrouve l'image qui commence par ce son.
+ *   • une image est montrée, l’enfant retrouve la lettre qui commence le mot ;
+ *   • une lettre est donnée, l’enfant retrouve l’image qui commence par ce son.
  */
 
 import React, { useCallback, useEffect, useState } from 'react';

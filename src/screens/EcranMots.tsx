@@ -1,7 +1,7 @@
 /**
  * Jeu « Je forme des mots » : une image, des cases vides, et les lettres du
- * mot en désordre. L'enfant place les lettres dans l'ordre ; une lettre posée
- * au mauvais endroit est refusée en douceur plutôt que d'être validée à la fin,
+ * mot en désordre. L’enfant place les lettres dans l’ordre ; une lettre posée
+ * au mauvais endroit est refusée en douceur plutôt que d’être validée à la fin,
  * pour que le retour arrive au moment du geste.
  */
 
@@ -31,7 +31,7 @@ export function EcranMots({ onRetour }: { onRetour: () => void }) {
   const { progress, ajouterEtoiles, enregistrerRecord } = useProgress();
   const { width } = useWindowDimensions();
 
-  // Les jetons rétrécissent juste ce qu'il faut pour que le mot le plus long
+  // Les jetons rétrécissent juste ce qu’il faut pour que le mot le plus long
   // (six lettres) tienne sur une seule ligne.
   const cote = Math.max(42, Math.min(66, Math.floor((Math.min(width, 720) - 28 - 5 * 10) / 6)));
 

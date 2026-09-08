@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Ludo Malin",
+    "slug": "ludo-malin",
+    "description": "Jeux d'apprentissage pour les 3-7 ans : tracer les lettres et les chiffres, compter, écouter, former des mots.",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "ludomalin",
+    "userInterfaceStyle": "light",
+    "primaryColor": "#5b6ef5",
+    "locales": {},
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ludomalin.app",
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "fr_FR"
+      }
+    },
+    "android": {
+      "package": "com.ludomalin.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#5b6ef5",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    }
+  }
+}
